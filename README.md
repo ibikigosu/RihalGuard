@@ -179,18 +179,4 @@ A simple way to think about it:
 
 They can complement each other. A RihalGuard contract can inform the policies you implement in a runtime governance layer. RihalGuard does not depend on Microsoft's toolkit, integrate with it by default, or imply affiliation with Microsoft.
 
-### Does RihalGuard require a hosted service?
-
-No. The schema is local. The validator runs locally. The starter agents run locally with mock tools. No account, hosted API, or external runtime is required.
-
-### Why keep `rihalguard.json` separate from `blueprint.json`?
-
-Because they have different jobs.
-
-`blueprint.json` explains the starter: name, category, summary, file references, and implementation shape.
-
-`rihalguard.json` is the contract: risk, maximum impact, allowed scope, blocked tools, data handling, review triggers, audit, and verification.
-
-Keeping them separate makes review easier and lets a runtime load the governance contract without parsing product metadata or docs.
-
 RihalGuard should make safe agent work easier, not heavier.
