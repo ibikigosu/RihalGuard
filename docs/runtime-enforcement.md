@@ -1,15 +1,45 @@
 # Runtime enforcement
 
-The contract is only useful if the runtime enforces it.
+A contract is only useful if the runtime enforces it.
 
-Minimum runtime controls:
+The starter `run.py` files are intentionally small. They show the minimum pattern: load `rihalguard.json`, check the requested tool against policy, and refuse anything outside the contract.
+
+## Minimum controls
 
 1. Load `rihalguard.json` before exposing tools.
-2. Expose only allowed tools.
+2. Expose only allowed tools to the agent where possible.
 3. Return `requires_approval` for approval-required tools.
-4. Block forbidden and unknown risky tools.
-5. Enforce turn, timeout, and cost limits.
-6. Write append-only audit events.
-7. Route review cases to the configured human destination.
+4. Block forbidden tools.
+5. Block unknown risky tools.
+6. Enforce turn, timeout, and budget limits.
+7. Write append-only audit events.
+8. Route review cases to the configured human destination.
 
-The starter `run.py` files demonstrate policy-based gating with mock tools.
+## Tool gate behavior
+
+Expected behavior:
+
+| Tool class | Runtime result |
+| --- | --- |
+| allowed | execute inside scope |
+| approval-required | prepare request, do not execute |
+| blocked | refuse execution |
+| unknown risky | refuse execution |
+
+## Why fail closed
+
+Agent systems change quickly. New tools appear during development. If unknown tools are allowed by default, a safe RG-2 agent can accidentally become a write-capable workflow.
+
+Failing closed is annoying. It is also the right default.
+
+## Production notes
+
+A production runtime should add:
+
+- real identity and permission checks
+- audit storage outside the model context
+- approval workflow integration
+- per-tool input/output validation
+- timeout and cost enforcement
+- environment-specific allowlists
+- incident logging for blocked attempts

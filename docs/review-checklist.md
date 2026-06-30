@@ -1,12 +1,42 @@
 # Review checklist
 
-Before a blueprint is used beyond a demo, answer these:
+Use this before a blueprint is used beyond a demo.
 
-- Is the maximum impact written clearly?
-- Are forbidden actions actually absent, blocked, or approval-gated?
-- Are unknown tools fail-closed?
-- Does the agent flag uncertainty instead of inventing facts?
-- Are sensitive inputs excluded from persistent memory?
+## Scope
+
+- Is the purpose narrow enough?
+- Is the maximum impact specific?
+- Are forbidden actions written as actions, not vague principles?
+- Does the README match the contract?
+
+## Tools
+
+- Are dangerous tools absent, blocked, or approval-gated?
+- Do unknown tools fail closed?
+- Are write/external tools separated from read/transform tools?
+- Does the runtime check policy before tool execution?
+
+## Data
+
+- Is the data class stated?
+- Is persistent memory disabled for sensitive content by default?
 - Are logs redacted where needed?
-- Do evals test the main failure modes, not just happy paths?
-- Is there a named human review destination?
+- Is client or project isolation required where relevant?
+
+## Output
+
+- Does the agent show uncertainty?
+- Does it require source evidence where appropriate?
+- Does it avoid inventing missing facts?
+- Does it produce a reviewable structure?
+
+## Evals
+
+- Do blocked tools fail?
+- Do approval-required tools return `requires_approval`?
+- Do allowed tools run?
+- Is the agent's most damaging likely failure tested?
+
+## Decision
+
+Approve the blueprint only if its contract, runtime, and evals tell the same story.
