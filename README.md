@@ -146,4 +146,51 @@ Expected result:
 4. Add behavioral evals for each agent's highest-risk failure.
 5. Promote only agents whose `rihalguard.json` and evals match their real capabilities.
 
+## FAQ
+
+### Is RihalGuard an agent framework?
+
+No. RihalGuard is a lightweight blueprint and governance-contract standard. It helps teams define an agent's purpose, risk level, tool boundaries, data rules, review triggers, and verification checks before implementation gets messy.
+
+It does not replace LangGraph, AutoGen, Semantic Kernel, CrewAI, FastAPI services, workflow engines, or internal platforms. It gives those implementations a common starting contract.
+
+### Does RihalGuard enforce policy at runtime?
+
+Only in the starter examples.
+
+The included `run.py` files show a minimal policy gate: load `rihalguard.json`, check the requested tool, block forbidden tools, and require approval for gated tools. That is a pattern, not a full production enforcement platform.
+
+For production, the same contract should inform real runtime controls: tool interception, identity, audit logging, approval workflows, access control, and incident handling.
+
+### How is RihalGuard different from Microsoft's Agent Governance Toolkit?
+
+They sit at different layers.
+
+**Microsoft's Agent Governance Toolkit** is a runtime governance toolkit. It focuses on production controls around autonomous agents: policy enforcement before tool execution, identity and attribution, sandboxing, tamper-evident audit logs, reliability controls, and framework adapters.
+
+**RihalGuard** is the earlier design and starter layer. It helps a team decide what an agent is allowed to do before wiring it into real systems. It provides a human-reviewable `rihalguard.json` contract, starter blueprints, mock tools, and deterministic safety checks.
+
+A simple way to think about it:
+
+| Layer | Main question | Example output |
+| --- | --- | --- |
+| RihalGuard | What should this agent be allowed to do? | `rihalguard.json`, blueprint, review checklist, starter evals |
+| Runtime governance toolkit | Is this specific action allowed right now? | allow/deny decision, audit record, sandboxed execution |
+
+They can complement each other. A RihalGuard contract can inform the policies you implement in a runtime governance layer. RihalGuard does not depend on Microsoft's toolkit, integrate with it by default, or imply affiliation with Microsoft.
+
+### Does RihalGuard require a hosted service?
+
+No. The schema is local. The validator runs locally. The starter agents run locally with mock tools. No account, hosted API, or external runtime is required.
+
+### Why keep `rihalguard.json` separate from `blueprint.json`?
+
+Because they have different jobs.
+
+`blueprint.json` explains the starter: name, category, summary, file references, and implementation shape.
+
+`rihalguard.json` is the contract: risk, maximum impact, allowed scope, blocked tools, data handling, review triggers, audit, and verification.
+
+Keeping them separate makes review easier and lets a runtime load the governance contract without parsing product metadata or docs.
+
 RihalGuard should make safe agent work easier, not heavier.
