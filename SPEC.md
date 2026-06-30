@@ -28,6 +28,14 @@ RihalGuard is not:
 
 It is the starting contract. Production still requires real enforcement, monitoring, access control, incident handling, and business-owner approval.
 
+## Governance alignment
+
+RihalGuard creates design-time evidence for governance review. Its contract fields support common enterprise governance concerns such as impact classification, intended-use boundaries, least-privilege tooling, human oversight, data handling, bounded execution, auditability, and verification.
+
+The detailed mapping lives in [`docs/governance-crosswalk.md`](docs/governance-crosswalk.md). Keep framework mappings there instead of adding compliance-specific fields to the schema. External frameworks change; the core contract should stay focused on the agent's actual behavior.
+
+RihalGuard does not certify compliance with NIST AI RMF, ISO/IEC 42001, OWASP, or any customer-specific control set. It gives reviewers a consistent artifact to inspect before real integrations are added.
+
 ## Risk levels
 
 Risk is classified by the most consequential action the agent is technically able to perform, not by its usual happy-path behavior.

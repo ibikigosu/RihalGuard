@@ -29,6 +29,7 @@ Every blueprint in this repo answers five questions before implementation begins
 - **Starter agents**: runnable mock implementations for common enterprise workflows.
 - **Validation tooling**: scripts that check contracts and prove basic tool-boundary behavior.
 - **Runtime pattern**: examples showing how a contract can gate tool execution before anything dangerous runs.
+- **Governance crosswalk**: design-time evidence mapped to common AI governance concerns in NIST AI RMF, ISO/IEC 42001, and OWASP agentic risk categories.
 
 ## Repository map
 
@@ -107,6 +108,14 @@ RihalGuard uses six levels:
 | RG-5 | Autonomous workflow agent. Runs end-to-end workflows with strict audit and rollback controls. |
 
 The current starter blueprints are RG-2. That is deliberate. They are safe foundations, not production automations pretending to be demos.
+
+## Governance alignment
+
+RihalGuard is designed to create reviewable design-time evidence for enterprise AI governance. Its contracts map naturally to common concerns in NIST AI RMF, ISO/IEC 42001, and OWASP agentic risk categories: authority boundaries, least-privilege tools, human approval, confidence escalation, bounded execution, auditability, and verification.
+
+This is not a compliance claim. A `rihalguard.json` file documents intended boundaries and required checks; production systems still need runtime enforcement, monitoring, access control, security review, and formal audit evidence.
+
+See [`docs/governance-crosswalk.md`](docs/governance-crosswalk.md) for the detailed mapping.
 
 ## What makes a blueprint acceptable
 
