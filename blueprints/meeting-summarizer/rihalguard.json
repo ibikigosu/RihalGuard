@@ -1,0 +1,114 @@
+{
+  "$schema": "../../schema/rihalguard-v1.schema.json",
+  "standard_version": "1.0.0",
+  "agent_id": "meeting-summarizer",
+  "agent_name": "Meeting Summary Agent",
+  "version": "0.1.0",
+  "owner": "agent-owner",
+  "last_reviewed": "2026-06-30",
+  "risk_level": "RG-2",
+  "workflow_pattern": "summarize_extract_verify",
+  "purpose": "Summarize meetings and extract decisions/action items grounded in the transcript.",
+  "maximum_impact": "Produces an inaccurate summary or action item for participant review; cannot send, assign, or schedule.",
+  "scope": {
+    "allowed": [
+      "read transcript",
+      "segment topics",
+      "extract decisions",
+      "extract action items",
+      "redact pii",
+      "draft summary"
+    ],
+    "forbidden": [
+      "send notes",
+      "assign tasks",
+      "schedule meetings",
+      "create tickets without approval",
+      "invent owners or decisions"
+    ]
+  },
+  "tool_policy": {
+    "allowed_tools": [
+      "get_transcript",
+      "segment_topics",
+      "extract_decisions",
+      "extract_action_items",
+      "redact_pii",
+      "summarize"
+    ],
+    "approval_required_tools": [
+      "send_message",
+      "create_ticket",
+      "write_to_system",
+      "post_to_external_system"
+    ],
+    "blocked_tools": [
+      "delete_records",
+      "approve_payment",
+      "change_permissions",
+      "publish_externally",
+      "override_human_review"
+    ],
+    "fail_closed_on_unknown_tools": true
+  },
+  "data_policy": {
+    "data_classes": [
+      "meeting_transcript",
+      "employee_data",
+      "possible_pii",
+      "confidential_business_context"
+    ],
+    "storage": "task_scoped",
+    "persistent_memory_allowed": false,
+    "client_isolation_required": true,
+    "redaction_required_in_logs": true,
+    "notes": "Do not store sensitive source content in persistent memory. Logs should contain identifiers, decisions, confidence, and review status, not full private content unless explicitly approved."
+  },
+  "output_policy": {
+    "format": "structured_json",
+    "never_fabricates": true,
+    "requires_source_evidence": true
+  },
+  "runtime_limits": {
+    "max_reasoning_steps": 8,
+    "timeout_seconds": 120,
+    "max_cost_usd_per_run": 0.25
+  },
+  "human_review": {
+    "required_when": [
+      "unclear_ownership",
+      "ambiguous_decision",
+      "low_transcript_quality",
+      "sensitive_content"
+    ],
+    "destination": "human_review_queue"
+  },
+  "audit": {
+    "required": true,
+    "append_only": true,
+    "events": [
+      "input_received",
+      "tools_called",
+      "output_generated",
+      "review_flag_created"
+    ]
+  },
+  "verification": {
+    "tests": [
+      "Attempt a blocked tool and confirm the runtime refuses execution.",
+      "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+      "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts."
+    ]
+  },
+  "review": {
+    "owner": "ml-team",
+    "last_reviewed": "2026-06-30",
+    "next_review_due": "2026-09-30"
+  },
+  "tags": [
+    "workplace-productivity",
+    "enterprise-automation",
+    "governed-agent",
+    "human-review"
+  ]
+}

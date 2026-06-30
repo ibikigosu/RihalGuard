@@ -1,0 +1,74 @@
+{
+  "tools": [
+    {
+      "name": "get_document",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for get_document. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "parse_fields",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for parse_fields. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "score_confidence",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for score_confidence. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "validate_totals",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for validate_totals. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "flag_for_review",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for flag_for_review. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "emit_json",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for emit_json. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "write_to_system",
+      "risk": "approval_required",
+      "description": "Example approval-gated write tool. Stub only.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    }
+  ]
+}

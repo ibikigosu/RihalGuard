@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ibikigosu/RihalGuard/schema/rihalguard-v1.schema.json",
+  "title": "RihalGuard Contract",
+  "description": "RihalGuard v1 governance contract for enterprise AI agents.",
+  "type": "object",
+  "required": [
+    "standard_version",
+    "agent_id",
+    "agent_name",
+    "version",
+    "risk_level",
+    "workflow_pattern",
+    "purpose",
+    "maximum_impact",
+    "scope",
+    "tool_policy",
+    "data_policy",
+    "output_policy",
+    "runtime_limits",
+    "human_review",
+    "audit",
+    "verification",
+    "review"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "standard_version": {
+      "type": "string"
+    },
+    "agent_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "agent_name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "last_reviewed": {
+      "type": "string"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "RG-0",
+        "RG-1",
+        "RG-2",
+        "RG-3",
+        "RG-4",
+        "RG-5"
+      ]
+    },
+    "workflow_pattern": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "maximum_impact": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "allowed",
+        "forbidden"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tool_policy": {
+      "type": "object",
+      "required": [
+        "allowed_tools",
+        "approval_required_tools",
+        "blocked_tools"
+      ],
+      "properties": {
+        "allowed_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "approval_required_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocked_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fail_closed_on_unknown_tools": {
+          "type": "boolean"
+        }
+      }
+    },
+    "data_policy": {
+      "type": "object",
+      "required": [
+        "data_classes",
+        "storage",
+        "persistent_memory_allowed",
+        "redaction_required_in_logs"
+      ],
+      "additionalProperties": true
+    },
+    "output_policy": {
+      "type": "object",
+      "required": [
+        "format",
+        "never_fabricates"
+      ],
+      "additionalProperties": true
+    },
+    "runtime_limits": {
+      "type": "object",
+      "required": [
+        "max_reasoning_steps"
+      ],
+      "additionalProperties": true
+    },
+    "human_review": {
+      "type": "object",
+      "required": [
+        "required_when",
+        "destination"
+      ],
+      "additionalProperties": true
+    },
+    "audit": {
+      "type": "object",
+      "required": [
+        "required",
+        "append_only",
+        "events"
+      ],
+      "additionalProperties": true
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "tests"
+      ],
+      "properties": {
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "owner",
+        "last_reviewed"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

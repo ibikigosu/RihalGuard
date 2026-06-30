@@ -1,0 +1,74 @@
+{
+  "tools": [
+    {
+      "name": "get_transcript",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for get_transcript. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "segment_topics",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for segment_topics. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "extract_decisions",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for extract_decisions. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "extract_action_items",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for extract_action_items. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "redact_pii",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for redact_pii. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "summarize",
+      "risk": "read_or_transform",
+      "description": "Mock starter tool for summarize. Replace with a real integration when implementing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "write_to_system",
+      "risk": "approval_required",
+      "description": "Example approval-gated write tool. Stub only.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": true
+      }
+    }
+  ]
+}

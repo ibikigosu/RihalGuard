@@ -1,0 +1,33 @@
+{
+  "version": "0.1.0",
+  "blueprints": [
+    {
+      "slug": "invoice-extractor",
+      "title": "Invoice Extraction Agent",
+      "category": "finance-operations",
+      "risk_level": "RG-2",
+      "path": "blueprints/invoice-extractor"
+    },
+    {
+      "slug": "form-to-json-extractor",
+      "title": "Form-to-JSON Extraction Agent",
+      "category": "operations",
+      "risk_level": "RG-2",
+      "path": "blueprints/form-to-json-extractor"
+    },
+    {
+      "slug": "meeting-summarizer",
+      "title": "Meeting Summary Agent",
+      "category": "workplace-productivity",
+      "risk_level": "RG-2",
+      "path": "blueprints/meeting-summarizer"
+    },
+    {
+      "slug": "action-item-tracker",
+      "title": "Action Item Tracking Agent",
+      "category": "workplace-productivity",
+      "risk_level": "RG-2",
+      "path": "blueprints/action-item-tracker"
+    }
+  ]
+}

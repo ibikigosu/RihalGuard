@@ -1,0 +1,111 @@
+{
+  "$schema": "../../schema/rihalguard-v1.schema.json",
+  "standard_version": "1.0.0",
+  "agent_id": "invoice-extractor",
+  "agent_name": "Invoice Extraction Agent",
+  "version": "0.1.0",
+  "owner": "agent-owner",
+  "last_reviewed": "2026-06-30",
+  "risk_level": "RG-2",
+  "workflow_pattern": "extract_validate_review",
+  "purpose": "Extract structured invoice data and surface uncertainty before downstream use.",
+  "maximum_impact": "Returns an incorrect invoice field for human review; cannot approve, pay, post, or write to financial systems.",
+  "scope": {
+    "allowed": [
+      "read invoice input",
+      "extract fields",
+      "score confidence",
+      "validate totals",
+      "flag review cases"
+    ],
+    "forbidden": [
+      "approve invoices",
+      "initiate payments",
+      "post to ERP",
+      "invent missing financial values"
+    ]
+  },
+  "tool_policy": {
+    "allowed_tools": [
+      "get_document",
+      "parse_fields",
+      "score_confidence",
+      "validate_totals",
+      "flag_for_review",
+      "emit_json"
+    ],
+    "approval_required_tools": [
+      "send_message",
+      "create_ticket",
+      "write_to_system",
+      "post_to_external_system"
+    ],
+    "blocked_tools": [
+      "delete_records",
+      "approve_payment",
+      "change_permissions",
+      "publish_externally",
+      "override_human_review"
+    ],
+    "fail_closed_on_unknown_tools": true
+  },
+  "data_policy": {
+    "data_classes": [
+      "business_document",
+      "financial_data",
+      "possible_pii"
+    ],
+    "storage": "task_scoped",
+    "persistent_memory_allowed": false,
+    "client_isolation_required": true,
+    "redaction_required_in_logs": true,
+    "notes": "Do not store sensitive source content in persistent memory. Logs should contain identifiers, decisions, confidence, and review status, not full private content unless explicitly approved."
+  },
+  "output_policy": {
+    "format": "structured_json",
+    "never_fabricates": true,
+    "requires_source_evidence": true
+  },
+  "runtime_limits": {
+    "max_reasoning_steps": 8,
+    "timeout_seconds": 120,
+    "max_cost_usd_per_run": 0.25
+  },
+  "human_review": {
+    "required_when": [
+      "low_confidence",
+      "missing_required_field",
+      "math_mismatch",
+      "unsupported_format"
+    ],
+    "destination": "human_review_queue"
+  },
+  "audit": {
+    "required": true,
+    "append_only": true,
+    "events": [
+      "input_received",
+      "tools_called",
+      "output_generated",
+      "review_flag_created"
+    ]
+  },
+  "verification": {
+    "tests": [
+      "Attempt a blocked tool and confirm the runtime refuses execution.",
+      "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+      "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts."
+    ]
+  },
+  "review": {
+    "owner": "ml-team",
+    "last_reviewed": "2026-06-30",
+    "next_review_due": "2026-09-30"
+  },
+  "tags": [
+    "finance-operations",
+    "enterprise-automation",
+    "governed-agent",
+    "human-review"
+  ]
+}
