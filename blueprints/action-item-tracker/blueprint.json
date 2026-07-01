@@ -1,0 +1,14 @@
+{
+  "slug": "action-item-tracker",
+  "title": "Action Item Tracking Agent",
+  "category": "workplace-productivity",
+  "summary": "Extracts and tracks explicit commitments from meetings without inventing owners or due dates.",
+  "difficulty": "starter",
+  "status": "starter",
+  "rihalguard_contract": "./rihalguard.json",
+  "system_prompt": "./system-prompt.md",
+  "tools": "./tools.json",
+  "workflow": "./workflow.md",
+  "examples": "./examples.md",
+  "setup_guide": "./setup-guide.md"
+}

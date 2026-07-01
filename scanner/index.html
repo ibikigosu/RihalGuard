@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RihalGuard Scanner</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Deterministic governance check</p>
+          <h1 id="page-title">RihalGuard Scanner</h1>
+          <p class="lede">Assess an agent before implementation, classify its RihalGuard risk level, and generate a starter <code>rihalguard.json</code>. You can also paste an existing prompt or contract to scan its governance gates.</p>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Scanner workspace">
+        <form class="input-panel" onsubmit="return false">
+          <div class="mode-switch" role="tablist" aria-label="Scanner mode">
+            <button id="assess-mode-button" class="is-active" data-mode-button="assess" role="tab" type="button" aria-selected="true">Assess agent</button>
+            <button id="scan-mode-button" data-mode-button="scan" role="tab" type="button" aria-selected="false">Scan prompt</button>
+          </div>
+
+          <div id="assessment-form" class="assessment-form">
+            <div class="form-grid">
+              <div>
+                <label for="agent-name">Agent name</label>
+                <input id="agent-name" type="text" placeholder="Invoice Intake Agent">
+              </div>
+              <div>
+                <label for="workflow-pattern">Workflow pattern</label>
+                <input id="workflow-pattern" type="text" placeholder="extract_validate_review">
+              </div>
+            </div>
+            <label for="agent-purpose">Purpose</label>
+            <textarea id="agent-purpose" class="compact-textarea" spellcheck="true" placeholder="One sentence describing what the agent does"></textarea>
+
+            <div class="assessment-section">
+              <h2>Authority</h2>
+              <div class="check-grid">
+                <label><input data-authority="reads_provided_input" type="checkbox" checked>Reads provided input</label>
+                <label><input data-authority="retrieves_approved_sources" type="checkbox">Retrieves approved sources</label>
+                <label><input data-authority="drafts_or_recommends" type="checkbox">Drafts or recommends</label>
+                <label><input data-authority="prepares_mutation" type="checkbox">Prepares a change payload</label>
+                <label><input data-authority="modifies_records" type="checkbox">Modifies records</label>
+                <label><input data-authority="deletes_records" type="checkbox">Deletes records</label>
+                <label><input data-authority="sends_external_messages" type="checkbox">Sends external messages</label>
+                <label><input data-authority="spends_money" type="checkbox">Spends or moves money</label>
+              </div>
+            </div>
+
+            <div class="assessment-section">
+              <h2>Data</h2>
+              <div class="check-grid">
+                <label><input data-data="customer_data" type="checkbox">Customer data</label>
+                <label><input data-data="financial_data" type="checkbox">Financial data</label>
+                <label><input data-data="personal_data" type="checkbox">Personal or sensitive data</label>
+                <label><input data-data="persistent_memory" type="checkbox">Persistent memory</label>
+              </div>
+            </div>
+
+            <div class="assessment-section">
+              <h2>Controls</h2>
+              <div class="check-grid">
+                <label><input data-control="human_approval" type="checkbox" checked>Human approval before mutation</label>
+                <label><input data-control="human_handoff" type="checkbox" checked>Human handoff route</label>
+                <label><input data-control="audit_trail" type="checkbox" checked>Append-only audit trail</label>
+                <label><input data-control="fail_closed_tools" type="checkbox" checked>Unknown tools fail closed</label>
+                <label><input data-control="loop_limits" type="checkbox" checked>Step, time, or cost limits</label>
+                <label><input data-control="rollback" type="checkbox">Rollback for executed actions</label>
+                <label><input data-control="data_redaction" type="checkbox" checked>Redacted logs</label>
+                <label><input data-control="spend_approval" type="checkbox" checked>Spend approval threshold</label>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="assess-button" class="primary" type="button">Assess risk</button>
+              <select id="assessment-sample-select" aria-label="Load assessment example">
+                <option value="">Load example</option>
+              </select>
+              <button id="clear-assessment-button" type="button">Clear</button>
+            </div>
+          </div>
+
+          <div id="scan-form" hidden>
+            <label for="scanner-input">System prompt or rihalguard.json</label>
+            <textarea id="scanner-input" spellcheck="false" placeholder="Paste your system prompt or rihalguard.json here"></textarea>
+            <div class="actions">
+              <button id="scan-button" class="primary" type="button">Scan now</button>
+              <select id="sample-select" aria-label="Load sample">
+                <option value="">Load sample</option>
+              </select>
+              <button id="clear-button" type="button">Clear</button>
+            </div>
+          </div>
+          <p class="privacy-note">Runs locally in the browser. No model calls, no upload, no storage.</p>
+        </form>
+
+        <section id="assessment-panel" class="result-panel" aria-live="polite">
+          <div class="score-strip" aria-label="Risk assessment summary">
+            <div>
+              <span>Risk level</span>
+              <strong id="assessment-risk-level">RG-0</strong>
+            </div>
+            <div>
+              <span>Model</span>
+              <strong id="assessment-risk-name">Passive</strong>
+            </div>
+            <div>
+              <span>Safety score</span>
+              <strong id="assessment-score">100%</strong>
+            </div>
+            <div>
+              <span>Review</span>
+              <strong id="assessment-determination">Ready</strong>
+            </div>
+          </div>
+
+          <div class="result-header">
+            <div>
+              <span class="input-type">design-time assessment</span>
+              <h2>Agent risk model</h2>
+            </div>
+            <div class="result-actions">
+              <button id="copy-assessment-contract" type="button">Copy contract</button>
+              <button id="copy-assessment-report" type="button">Copy report</button>
+            </div>
+          </div>
+
+          <div id="assessment-breakdown" class="panel-list"></div>
+          <pre id="assessment-contract" class="fix-block"></pre>
+        </section>
+
+        <section id="result-panel" class="result-panel is-empty" aria-live="polite" hidden>
+          <div class="score-strip" aria-label="Current scan summary">
+            <div>
+              <span>Determination</span>
+              <strong id="determination">Paste input</strong>
+            </div>
+            <div>
+              <span>Trust tier</span>
+              <strong id="trust-tier">n/a</strong>
+            </div>
+            <div>
+              <span>Failed</span>
+              <strong id="failed-count">0</strong>
+            </div>
+            <div>
+              <span>Confidence</span>
+              <strong id="confidence">0%</strong>
+            </div>
+          </div>
+
+          <div class="result-header">
+            <div>
+              <span class="input-type" id="input-type">empty</span>
+              <h2>Gate results</h2>
+            </div>
+            <div class="result-actions">
+              <button id="copy-report" type="button">Copy report</button>
+              <button id="copy-fix" type="button">Copy fix block</button>
+            </div>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Scan result tabs">
+            <button class="is-active" data-tab-button="gates" role="tab" type="button" aria-selected="true">Gates</button>
+            <button data-tab-button="risk" role="tab" type="button" aria-selected="false">Risk Radar</button>
+            <button data-tab-button="scenarios" role="tab" type="button" aria-selected="false">Scenarios</button>
+            <button data-tab-button="frameworks" role="tab" type="button" aria-selected="false">Frameworks</button>
+            <button data-tab-button="fix" role="tab" type="button" aria-selected="false">Fix block</button>
+          </div>
+
+          <div data-tab-panel="gates" id="gate-list" class="panel-list"></div>
+          <div data-tab-panel="risk" id="risk-radar" class="panel-list" hidden></div>
+          <div data-tab-panel="scenarios" id="scenario-list" class="panel-list" hidden></div>
+          <div data-tab-panel="frameworks" id="framework-list" class="panel-list" hidden></div>
+          <pre data-tab-panel="fix" id="fix-block" class="fix-block" hidden></pre>
+        </section>
+      </section>
+
+      <section class="reference" aria-label="What the scanner checks">
+        <div>
+          <h2>What it scores</h2>
+          <p>The scanner maps input to RihalGuard design controls: contract completeness, scope, tool policy, data handling, output integrity, runtime limits, human review, audit, verification, and ownership.</p>
+        </div>
+        <div>
+          <h2>What it cannot prove</h2>
+          <p>A browser scan cannot prove identity, runtime enforcement, access control, production logging, or downstream approval workflows. Treat this as a design-layer screen before deeper review.</p>
+        </div>
+        <div>
+          <h2>Why deterministic</h2>
+          <p>Governance checks should be reproducible. The same input gets the same gate results, and employees can paste the fix block straight into a contract or prompt review.</p>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>

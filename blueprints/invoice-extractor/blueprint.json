@@ -1,0 +1,14 @@
+{
+  "slug": "invoice-extractor",
+  "title": "Invoice Extraction Agent",
+  "category": "finance-operations",
+  "summary": "Extracts invoice fields into validated structured output with confidence, consistency checks, and review flags.",
+  "difficulty": "starter",
+  "status": "starter",
+  "rihalguard_contract": "./rihalguard.json",
+  "system_prompt": "./system-prompt.md",
+  "tools": "./tools.json",
+  "workflow": "./workflow.md",
+  "examples": "./examples.md",
+  "setup_guide": "./setup-guide.md"
+}

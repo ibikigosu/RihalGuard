@@ -1,0 +1,14 @@
+{
+  "slug": "form-to-json-extractor",
+  "title": "Form-to-JSON Extraction Agent",
+  "category": "operations",
+  "summary": "Maps form inputs into schema-valid JSON while flagging missing, ambiguous, or low-confidence fields.",
+  "difficulty": "starter",
+  "status": "starter",
+  "rihalguard_contract": "./rihalguard.json",
+  "system_prompt": "./system-prompt.md",
+  "tools": "./tools.json",
+  "workflow": "./workflow.md",
+  "examples": "./examples.md",
+  "setup_guide": "./setup-guide.md"
+}

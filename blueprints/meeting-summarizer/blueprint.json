@@ -1,0 +1,14 @@
+{
+  "slug": "meeting-summarizer",
+  "title": "Meeting Summary Agent",
+  "category": "workplace-productivity",
+  "summary": "Turns transcripts into faithful summaries, decisions, action items, and open questions grounded in evidence.",
+  "difficulty": "starter",
+  "status": "starter",
+  "rihalguard_contract": "./rihalguard.json",
+  "system_prompt": "./system-prompt.md",
+  "tools": "./tools.json",
+  "workflow": "./workflow.md",
+  "examples": "./examples.md",
+  "setup_guide": "./setup-guide.md"
+}
