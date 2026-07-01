@@ -2,187 +2,45 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/ibikigosu/RihalGuard/schema/rihalguard-v1.schema.json",
   "title": "RihalGuard Contract",
-  "description": "RihalGuard v1 governance contract for enterprise AI agents.",
+  "description": "RihalGuard v1 governance contract for enterprise AI agents. Design-time only: documents purpose, authority, risk, data handling, tool boundaries, review triggers, audit expectations, and verification checks before real integrations are added.",
   "type": "object",
-  "required": [
-    "standard_version",
-    "agent_id",
-    "agent_name",
-    "version",
-    "risk_level",
-    "workflow_pattern",
-    "purpose",
-    "maximum_impact",
-    "scope",
-    "tool_policy",
-    "data_policy",
-    "output_policy",
-    "runtime_limits",
-    "human_review",
-    "audit",
-    "verification",
-    "review"
-  ],
+  "required": ["standard_version", "agent_id", "agent_name", "version", "risk_level", "workflow_pattern", "purpose", "maximum_impact", "scope", "tool_policy", "data_policy", "output_policy", "runtime_limits", "human_review", "audit", "verification", "review"],
   "properties": {
-    "$schema": {
-      "type": "string"
-    },
-    "standard_version": {
-      "type": "string"
-    },
-    "agent_id": {
-      "type": "string",
-      "pattern": "^[a-z0-9][a-z0-9-]*$"
-    },
-    "agent_name": {
-      "type": "string"
-    },
-    "version": {
-      "type": "string"
-    },
-    "owner": {
-      "type": "string"
-    },
-    "last_reviewed": {
-      "type": "string"
-    },
-    "risk_level": {
-      "type": "string",
-      "enum": [
-        "RG-0",
-        "RG-1",
-        "RG-2",
-        "RG-3",
-        "RG-4",
-        "RG-5"
-      ]
-    },
-    "workflow_pattern": {
-      "type": "string"
-    },
-    "purpose": {
-      "type": "string"
-    },
-    "maximum_impact": {
-      "type": "string"
-    },
+    "$schema": { "type": "string", "description": "Path or URL of the JSON Schema used to validate this contract." },
+    "standard_version": { "type": "string", "description": "RihalGuard standard version this contract follows." },
+    "agent_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Stable lowercase identifier for the agent. Use kebab-case, for example invoice-extractor." },
+    "agent_name": { "type": "string", "description": "Human-readable name shown in documentation, review notes, and demos." },
+    "version": { "type": "string", "description": "Version of this specific agent or blueprint contract." },
+    "owner": { "type": "string", "description": "Person or team responsible for this agent. Kept for backwards compatibility; prefer review.owner for new contracts." },
+    "last_reviewed": { "type": "string", "format": "date", "description": "Date this contract was last reviewed. Kept for backwards compatibility; prefer review.last_reviewed for new contracts." },
+    "risk_level": { "type": "string", "enum": ["RG-0", "RG-1", "RG-2", "RG-3", "RG-4", "RG-5"], "description": "Authority class based on the agent's worst-case technically possible action: RG-0 passive input-only, RG-1 approved lookup, RG-2 structured output or recommendation, RG-3 human-gated mutation, RG-4 limited reversible execution, RG-5 autonomous workflow." },
+    "workflow_pattern": { "type": "string", "description": "Short pattern name for how the agent works, such as extract_validate_review, summarize_extract_verify, plan_review_execute, or lookup_summarize." },
+    "purpose": { "type": "string", "description": "Plain-language statement of what the agent is for and who it helps." },
+    "maximum_impact": { "type": "string", "description": "Worst-case action or impact the agent can cause if it fails or is misused. Classify risk by this, not by the happy path." },
     "scope": {
-      "type": "object",
-      "required": [
-        "allowed",
-        "forbidden"
-      ],
+      "type": "object", "description": "Explicit authority boundary: what the agent may do and what it must never do.", "required": ["allowed", "forbidden"],
       "properties": {
-        "allowed": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "forbidden": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
+        "allowed": { "$ref": "#/definitions/stringArray", "description": "Actions, decisions, or outputs allowed inside this agent's scope." },
+        "forbidden": { "$ref": "#/definitions/stringArray", "description": "Actions, decisions, or outputs the agent must not perform." }
       }
     },
     "tool_policy": {
-      "type": "object",
-      "required": [
-        "allowed_tools",
-        "approval_required_tools",
-        "blocked_tools"
-      ],
+      "type": "object", "description": "Tool boundary defining tools that can run, tools that need approval, and tools that are blocked.", "required": ["allowed_tools", "approval_required_tools", "blocked_tools"],
       "properties": {
-        "allowed_tools": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "approval_required_tools": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "blocked_tools": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "fail_closed_on_unknown_tools": {
-          "type": "boolean"
-        }
+        "allowed_tools": { "$ref": "#/definitions/stringArray", "description": "Tools the agent may call without extra approval when inside scope." },
+        "approval_required_tools": { "$ref": "#/definitions/stringArray", "description": "Tools that may be prepared or requested, but require human approval before execution." },
+        "blocked_tools": { "$ref": "#/definitions/stringArray", "description": "Tools or actions the agent must never execute." },
+        "fail_closed_on_unknown_tools": { "type": "boolean", "description": "Whether runtime should block any tool not listed in this policy." }
       }
     },
-    "data_policy": {
-      "type": "object",
-      "required": [
-        "data_classes",
-        "storage",
-        "persistent_memory_allowed",
-        "redaction_required_in_logs"
-      ],
-      "additionalProperties": true
-    },
-    "output_policy": {
-      "type": "object",
-      "required": [
-        "format",
-        "never_fabricates"
-      ],
-      "additionalProperties": true
-    },
-    "runtime_limits": {
-      "type": "object",
-      "required": [
-        "max_reasoning_steps"
-      ],
-      "additionalProperties": true
-    },
-    "human_review": {
-      "type": "object",
-      "required": [
-        "required_when",
-        "destination"
-      ],
-      "additionalProperties": true
-    },
-    "audit": {
-      "type": "object",
-      "required": [
-        "required",
-        "append_only",
-        "events"
-      ],
-      "additionalProperties": true
-    },
-    "verification": {
-      "type": "object",
-      "required": [
-        "tests"
-      ],
-      "properties": {
-        "tests": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "additionalProperties": true
-    },
-    "review": {
-      "type": "object",
-      "required": [
-        "owner",
-        "last_reviewed"
-      ],
-      "additionalProperties": true
-    }
+    "data_policy": { "type": "object", "description": "Data handling rules: data classes, storage, retention, memory, isolation, and log redaction expectations.", "required": ["data_classes", "storage", "persistent_memory_allowed", "redaction_required_in_logs"], "additionalProperties": true },
+    "output_policy": { "type": "object", "description": "Output boundary: required format, evidence expectations, and anti-fabrication rules.", "required": ["format", "never_fabricates"], "additionalProperties": true },
+    "runtime_limits": { "type": "object", "description": "Execution limits such as reasoning steps, timeout, cost ceiling, retries, or loop bounds.", "required": ["max_reasoning_steps"], "additionalProperties": true },
+    "human_review": { "type": "object", "description": "Escalation and handoff policy: when human review is required and where the case should go.", "required": ["required_when", "destination"], "additionalProperties": true },
+    "audit": { "type": "object", "description": "Audit expectations, including whether logs are required, append-only, and which events must be recorded.", "required": ["required", "append_only", "events"], "additionalProperties": true },
+    "verification": { "type": "object", "description": "Checks that prove the agent's stated boundaries hold.", "required": ["tests"], "properties": { "tests": { "$ref": "#/definitions/stringArray", "description": "Named tests, evals, or checks that should pass for this contract." } }, "additionalProperties": true },
+    "review": { "type": "object", "description": "Ownership and review metadata for this contract.", "required": ["owner", "last_reviewed"], "additionalProperties": true }
   },
+  "definitions": { "stringArray": { "type": "array", "items": { "type": "string" } } },
   "additionalProperties": true
 }
