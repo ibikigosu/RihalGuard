@@ -111,10 +111,99 @@ function renderAssessment(result) {
   currentAssessment = result;
   document.querySelector("#assessment-risk-level").textContent = result.riskLevel;
   document.querySelector("#assessment-risk-name").textContent = result.riskName;
-  document.querySelector("#assessment-score").textContent = `${result.score}%`;
+  document.querySelector("#assessment-score").textContent = result.score;
   document.querySelector("#assessment-determination").textContent = result.determination;
+  document.querySelector("#assessment-boundary").textContent = result.boundary;
   document.querySelector("#assessment-contract").textContent = JSON.stringify(result.contract, null, 2);
+  renderAssessmentRadar(result);
   renderAssessmentBreakdown(result);
+}
+
+function renderAssessmentRadar(result) {
+  const mount = document.querySelector("#assessment-safety-radar");
+  mount.replaceChildren();
+  mount.innerHTML = buildAssessmentRadarSvg(buildAssessmentRadar(result));
+}
+
+function buildAssessmentRadar(result) {
+  const findingScore = (title, fallback = 10) => {
+    const item = result.findings.find((finding) => finding.title === title);
+    if (!item) return fallback;
+    if (item.status !== "gap") return 10;
+    return item.severity === "high" ? 3 : 5;
+  };
+  const humanScores = [];
+  const approval = result.findings.find((finding) => finding.title === "Human approval before mutation");
+  const handoff = result.findings.find((finding) => finding.title === "Human handoff route");
+  if (approval) humanScores.push(approval.status === "gap" ? 3 : 10);
+  if (handoff) humanScores.push(handoff.status === "gap" ? 4 : 10);
+  const runtimeScores = [findingScore("Loop and cost limits")];
+  const rollback = result.findings.find((finding) => finding.title === "Rollback for execution");
+  if (rollback) runtimeScores.push(rollback.status === "gap" ? 3 : 10);
+  const riskIndex = Number(result.riskLevel.replace("RG-", ""));
+  const authorityScore = Math.max(4, 10 - Math.max(0, riskIndex - 3) * 2);
+
+  return [
+    { label: "Authority", score: authorityScore },
+    { label: "Human Review", score: average(humanScores, 10) },
+    { label: "Tool Isolation", score: findingScore("Unknown tools fail closed") },
+    { label: "Auditability", score: findingScore("Audit trail") },
+    { label: "Runtime Control", score: average(runtimeScores, 10) },
+    { label: "Data Safety", score: findingScore("Sensitive data handling", 10) },
+  ];
+}
+
+function average(values, fallback) {
+  if (values.length === 0) return fallback;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function buildAssessmentRadarSvg(axes) {
+  const width = 620;
+  const height = 430;
+  const cx = 310;
+  const cy = 210;
+  const R = 126;
+  const rings = [2, 4, 6, 8, 10];
+  const angle = (i) => ((i * 360) / axes.length - 90) * (Math.PI / 180);
+  const point = (i, value) => {
+    const r = (value / 10) * R;
+    const a = angle(i);
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+  const ringPolygons = rings
+    .map((value) => {
+      const points = axes.map((_, i) => point(i, value).join(",")).join(" ");
+      return `<polygon points="${points}" class="assessment-radar-ring" />`;
+    })
+    .join("");
+  const spokes = axes
+    .map((_, i) => {
+      const [x, y] = point(i, 10);
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" class="assessment-radar-spoke" />`;
+    })
+    .join("");
+  const safetyPoints = axes.map((axis, i) => point(i, axis.score).join(",")).join(" ");
+  const vertices = axes
+    .map((axis, i) => {
+      const [x, y] = point(i, axis.score);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" class="assessment-radar-vertex" />`;
+    })
+    .join("");
+  const labels = axes
+    .map((axis, i) => {
+      const a = angle(i);
+      const lx = cx + (R + 48) * Math.cos(a);
+      const ly = cy + (R + 48) * Math.sin(a);
+      const cos = Math.cos(a);
+      const sin = Math.sin(a);
+      const anchor = cos > 0.3 ? "start" : cos < -0.3 ? "end" : "middle";
+      const dy = sin < -0.5 ? -8 : sin > 0.5 ? 16 : 4;
+      return `<text x="${lx.toFixed(1)}" y="${(ly + dy).toFixed(1)}" text-anchor="${anchor}" class="assessment-radar-label">${escapeHtml(axis.label)}</text>`;
+    })
+    .join("");
+
+  return `<svg viewBox="0 0 ${width} ${height}" class="assessment-radar-chart" role="img" aria-label="Safety breakdown radar across six dimensions">${ringPolygons}${spokes}<polygon points="${safetyPoints}" class="assessment-radar-area" />${vertices}${labels}</svg>`;
 }
 
 function renderAssessmentBreakdown(result) {
@@ -374,13 +463,54 @@ function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
 }
 
-async function copyText(text, button) {
-  await navigator.clipboard.writeText(text);
+async function copyText(text, button, fallbackSelectionTarget = null) {
+  const copied = await writeClipboard(text);
+  if (!copied && fallbackSelectionTarget) {
+    selectElementText(fallbackSelectionTarget);
+  }
   const original = button.textContent;
-  button.textContent = "Copied";
+  button.textContent = copied ? "Copied" : fallbackSelectionTarget ? "Selected" : "Copy failed";
   window.setTimeout(() => {
     button.textContent = original;
-  }, 1200);
+  }, copied ? 1200 : 1800);
+}
+
+async function writeClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to the legacy selection path for stricter browser settings.
+    }
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.left = "-9999px";
+  document.body.append(textarea);
+  textarea.focus({ preventScroll: true });
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  try {
+    return document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    textarea.remove();
+  }
+}
+
+function selectElementText(element) {
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 loadSamples();
@@ -433,6 +563,10 @@ for (const button of tabButtons) {
 copyReportButton.addEventListener("click", () => copyText(currentResult.report, copyReportButton));
 copyFixButton.addEventListener("click", () => copyText(currentResult.fixBlock, copyFixButton));
 copyAssessmentContractButton.addEventListener("click", () =>
-  copyText(JSON.stringify(currentAssessment.contract, null, 2), copyAssessmentContractButton),
+  copyText(
+    JSON.stringify(currentAssessment.contract, null, 2),
+    copyAssessmentContractButton,
+    document.querySelector("#assessment-contract"),
+  ),
 );
 copyAssessmentReportButton.addEventListener("click", () => copyText(currentAssessment.report, copyAssessmentReportButton));

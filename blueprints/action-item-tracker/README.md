@@ -48,9 +48,13 @@ Expected evidence:
 ## Run
 
 ```bash
+uv sync
 python3 run.py
 python3 evals/run.py
 ```
+
+Set `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` to run the optional LLM tool-use loop.
+Without an API key, `run.py` stays in local policy-gate demo mode.
 
 ## Adaptation path
 

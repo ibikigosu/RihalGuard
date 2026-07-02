@@ -99,38 +99,42 @@
         </form>
 
         <section id="assessment-panel" class="result-panel" aria-live="polite">
-          <div class="score-strip" aria-label="Risk assessment summary">
-            <div>
-              <span>Risk level</span>
-              <strong id="assessment-risk-level">RG-0</strong>
+          <div class="assessment-hero" aria-label="Risk assessment summary">
+            <div class="assessment-hero__top">
+              <div class="assessment-tier-card">
+                <strong id="assessment-risk-level">RG-0</strong>
+                <span id="assessment-risk-name">Passive</span>
+              </div>
+              <div class="assessment-score-card">
+                <strong id="assessment-score">100</strong>
+                <span>safety score</span>
+              </div>
             </div>
-            <div>
-              <span>Model</span>
-              <strong id="assessment-risk-name">Passive</strong>
-            </div>
-            <div>
-              <span>Safety score</span>
-              <strong id="assessment-score">100%</strong>
-            </div>
-            <div>
-              <span>Review</span>
+            <p id="assessment-boundary" class="assessment-boundary">Reads provided input only. No external tools.</p>
+            <div id="assessment-safety-radar" class="assessment-safety-radar"></div>
+            <div class="assessment-hero__footer">
+              <span class="input-type">design-time assessment</span>
               <strong id="assessment-determination">Ready</strong>
             </div>
           </div>
 
-          <div class="result-header">
+          <div class="result-header assessment-results-header">
             <div>
-              <span class="input-type">design-time assessment</span>
+              <span class="input-type">control findings</span>
               <h2>Agent risk model</h2>
             </div>
             <div class="result-actions">
-              <button id="copy-assessment-contract" type="button">Copy contract</button>
               <button id="copy-assessment-report" type="button">Copy report</button>
             </div>
           </div>
-
           <div id="assessment-breakdown" class="panel-list"></div>
-          <pre id="assessment-contract" class="fix-block"></pre>
+          <section class="code-panel" aria-labelledby="assessment-contract-title">
+            <div class="code-panel__header">
+              <h2 id="assessment-contract-title">RIHALGUARD.JSON</h2>
+              <button id="copy-assessment-contract" type="button">Copy</button>
+            </div>
+            <pre id="assessment-contract" class="fix-block"></pre>
+          </section>
         </section>
 
         <section id="result-panel" class="result-panel is-empty" aria-live="polite" hidden>

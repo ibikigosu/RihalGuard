@@ -1,10 +1,14 @@
 # RihalGuard
 
-**RihalGuard is a starter standard for building governed enterprise AI agents.**
+> A starter standard for building governed enterprise AI agents.
 
 It is not another prompt collection. It is a practical way to start every agent with the same minimum operating discipline: a clear purpose, a risk level, tool boundaries, human-review triggers, audit events, and deterministic safety checks.
 
 The goal is simple: make agent development faster without letting every team invent its own rules.
+
+> [!NOTE]
+> RihalGuard is a design-time contract and starter blueprint system.
+> Production agents still need real runtime enforcement, identity, access control, monitoring, and audit evidence.
 
 ## Why this exists
 
@@ -28,7 +32,8 @@ Every blueprint in this repo answers five questions before implementation begins
 - **A blueprint format**: each agent has a predictable structure that is easy to review and adapt.
 - **Starter agents**: runnable mock implementations for common enterprise workflows.
 - **Validation tooling**: scripts that check contracts and prove basic tool-boundary behavior.
-- **Runtime pattern**: examples showing how a contract can gate tool execution before anything dangerous runs.
+- **Policy-gated runners**: examples showing how a contract can gate tool execution before anything dangerous runs, with optional OpenAI or Anthropic tool-use loops.
+- **Local scanner**: a browser-based risk assessment tool with contract generation, control findings, safety radar, and copyable reports.
 - **Governance crosswalk**: design-time evidence mapped to common AI governance concerns in NIST AI RMF, ISO/IEC 42001, and OWASP agentic risk categories.
 
 ## Repository map
@@ -41,6 +46,7 @@ RihalGuard/
   schema/rihalguard-v1.schema.json  # contract schema
   docs/                             # review, runtime, and blueprint docs
   scripts/                          # validation and copy tooling
+  scanner/                          # local browser scanner and assessment UI
   blueprints/                       # governed starter agents
 ```
 
@@ -59,6 +65,12 @@ All four are mock-integrated on purpose. They run immediately, show the control 
 
 ## Quick start
 
+Requirements:
+
+- Python 3.10+
+- Node.js for the scanner validation script
+- `uv` when you want to install optional blueprint LLM dependencies
+
 Validate the repo:
 
 ```bash
@@ -72,14 +84,17 @@ Open the local scanner:
 open scanner/index.html
 ```
 
-Use it to paste a system prompt or `rihalguard.json` and get deterministic RihalGuard gate results, risk radar, scenarios, and a remediation block.
+Use it to paste a system prompt or complete the assessment form.
+The scanner returns deterministic RihalGuard gate results, a generated `rihalguard.json`, control findings, a safety radar, sample scenarios, and a remediation block.
 
 Run one starter:
 
 ```bash
-python3 blueprints/meeting-summarizer/run.py
-python3 blueprints/meeting-summarizer/evals/run.py
+(cd blueprints/meeting-summarizer && uv sync && python3 run.py && python3 evals/run.py)
 ```
+
+Without an API key, the starter stays in local policy-gate demo mode.
+Set `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` to run the optional LLM tool-use loop through the same policy gate.
 
 Create a working copy from a starter blueprint:
 
@@ -99,7 +114,7 @@ RihalGuard separates the agent into three layers:
 | --- | --- |
 | `blueprint.json` | What the agent is, who it is for, and where its supporting files live. |
 | `rihalguard.json` | What the agent is allowed to do, what it must never do, and when review is required. |
-| `run.py` | A minimal runtime showing how policy can block or gate tools before execution. |
+| `run.py` | A minimal runtime showing how policy can block, allow, or approval-gate tools before execution. |
 
 This split keeps governance review separate from implementation detail. A reviewer can inspect `rihalguard.json` without reading the whole agent.
 
@@ -119,6 +134,23 @@ RihalGuard uses six levels:
 The current starter blueprints are RG-2.
 That is deliberate.
 They are safe foundations, not production automations pretending to be demos.
+
+## Local scanner
+
+The scanner in `scanner/` runs directly in the browser.
+It has two modes:
+
+| Mode | Use it for |
+| --- | --- |
+| Prompt scanner | Paste a system prompt or policy text and find missing RihalGuard controls. |
+| Risk assessment | Describe an agent's authority, data, and controls to infer an RG level and generate a starter contract. |
+
+The assessment view includes a six-axis safety radar covering authority, human review, tool isolation, auditability, runtime control, and data safety.
+Copy buttons use the Clipboard API when available and fall back to selecting the generated contract when browser permissions are stricter.
+
+> [!TIP]
+> The scanner is intentionally static.
+> You can open `scanner/index.html` without a server, which keeps early governance review easy to run in locked-down environments.
 
 ## Governance alignment
 
@@ -148,6 +180,7 @@ Run:
 
 ```bash
 python3 scripts/validate.py
+node scripts/validate-risk-tiers.mjs
 for d in blueprints/*; do python3 "$d/evals/run.py"; done
 ```
 
