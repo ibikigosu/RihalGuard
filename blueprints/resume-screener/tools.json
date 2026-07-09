@@ -1,0 +1,216 @@
+{
+  "tools": [
+    {
+      "name": "get_requisition",
+      "risk": "read_or_transform",
+      "description": "Load one approved requisition with stable required and preferred qualification identifiers.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "requisition_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requisition_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_resume",
+      "risk": "read_or_transform",
+      "description": "Retrieve one task-scoped resume from an approved source.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "candidate_record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_record_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "parse_resume",
+      "risk": "read_or_transform",
+      "description": "Structure job-relevant skills, roles, durations, credentials, and accomplishments without evaluating them.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "resume_text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "resume_text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "redact_protected_attributes",
+      "risk": "read_or_transform",
+      "description": "Remove protected characteristics and proxy signals before requirement matching.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parsed_resume": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "parsed_resume"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "match_requirements",
+      "risk": "read_or_transform",
+      "description": "Compare redacted job-relevant evidence with each approved requirement and return met, not_met, or unclear.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "redacted_resume": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "requirements",
+          "redacted_resume"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "cite_evidence",
+      "risk": "read_or_transform",
+      "description": "Attach the smallest useful resume excerpt and source location to a requirement finding.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "requirement_id": {
+            "type": "string"
+          },
+          "finding": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "requirement_id",
+          "finding"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "check_fairness",
+      "risk": "read_or_transform",
+      "description": "Verify that findings use only approved job criteria and exclude protected characteristics and proxy signals.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "findings"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "build_assessment",
+      "risk": "read_or_transform",
+      "description": "Build a non-binding structured assessment with requirement findings and interview focus areas.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "fairness_check": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "findings",
+          "fairness_check"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "flag_for_review",
+      "risk": "read_or_transform",
+      "description": "Add a review reason to the output without sending or mutating an external record.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "emit_json",
+      "risk": "read_or_transform",
+      "description": "Return the final structured assessment to the caller for recruiter review.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "assessment": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "assessment"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "update_ats",
+      "risk": "approval_required",
+      "description": "Example approval-gated applicant-tracking write tool. Stub only.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "candidate_record_id": {
+            "type": "string"
+          },
+          "assessment": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "candidate_record_id",
+          "assessment"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "resume-screener",
+  "title": "Resume Screening Agent",
+  "category": "hr-recruiting",
+  "summary": "Assesses one resume against documented job requirements and produces an evidence-cited summary for recruiter review.",
+  "difficulty": "advanced",
+  "status": "starter",
+  "rihalguard_contract": "./rihalguard.json",
+  "system_prompt": "./system-prompt.md",
+  "tools": "./tools.json",
+  "workflow": "./workflow.md",
+  "examples": "./examples.md",
+  "setup_guide": "./setup-guide.md"
+}

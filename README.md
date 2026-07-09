@@ -60,8 +60,10 @@ The intended path is to start from the closest working blueprint, then adapt it.
 | `form-to-json-extractor` | Convert forms or records into schema-valid JSON | operations | RG-2 |
 | `meeting-summarizer` | Produce faithful summaries, decisions, and open questions | workplace productivity | RG-2 |
 | `action-item-tracker` | Extract explicit commitments and draft follow-up records | workplace productivity | RG-2 |
+| `resume-screener` | Assess resumes against documented requirements for recruiter review | HR and recruiting | RG-2 |
 
-All four are mock-integrated on purpose. They run immediately, show the control pattern, and leave the real system integrations to the implementing team.
+All five are mock-integrated on purpose.
+They run immediately, show the control pattern, and leave the real system integrations to the implementing team.
 
 ## Quick start
 
@@ -187,8 +189,7 @@ for d in blueprints/*; do python3 "$d/evals/run.py"; done
 Expected result:
 
 ```text
-4/4 RihalGuard contracts valid
-16/16 RihalGuard checks passed
+5/5 RihalGuard contracts valid
 ```
 
 ## Suggested adoption path

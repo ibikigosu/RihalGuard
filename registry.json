@@ -28,6 +28,13 @@
       "category": "workplace-productivity",
       "risk_level": "RG-2",
       "path": "blueprints/action-item-tracker"
+    },
+    {
+      "slug": "resume-screener",
+      "title": "Resume Screening Agent",
+      "category": "hr-recruiting",
+      "risk_level": "RG-2",
+      "path": "blueprints/resume-screener"
     }
   ]
 }
