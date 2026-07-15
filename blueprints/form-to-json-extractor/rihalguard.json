@@ -4,7 +4,7 @@
   "agent_id": "form-to-json-extractor",
   "agent_name": "Form-to-JSON Extraction Agent",
   "version": "0.1.0",
-  "owner": "agent-owner",
+  "owner": "operations-team",
   "last_reviewed": "2026-06-30",
   "risk_level": "RG-2",
   "workflow_pattern": "extract_schema_validate_review",
@@ -33,12 +33,7 @@
       "flag_for_review",
       "emit_json"
     ],
-    "approval_required_tools": [
-      "send_message",
-      "create_ticket",
-      "write_to_system",
-      "post_to_external_system"
-    ],
+    "approval_required_tools": [],
     "blocked_tools": [
       "delete_records",
       "approve_payment",
@@ -63,7 +58,12 @@
   "output_policy": {
     "format": "structured_json",
     "never_fabricates": true,
-    "requires_source_evidence": true
+    "requires_source_evidence": true,
+    "unsupported_claim_policy": {
+      "behavior": "mark_unknown",
+      "creative_drafting_allowed": false,
+      "generated_content_label_required": false
+    }
   },
   "runtime_limits": {
     "max_reasoning_steps": 8,
@@ -77,7 +77,41 @@
       "ambiguous_field",
       "low_confidence"
     ],
-    "destination": "human_review_queue"
+    "destination": "human_review_queue",
+    "trigger_definitions": [
+      {
+        "id": "schema_invalid",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "schema_validation_passed",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "missing_required_field",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "required_fields_present",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "ambiguous_field",
+        "evaluation": "judgment",
+        "condition": "More than one source value plausibly maps to the same output field.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "low_confidence",
+        "evaluation": "judgment",
+        "condition": "The agent cannot support a required finding with sufficient source evidence.",
+        "action": "route_for_review"
+      }
+    ]
   },
   "audit": {
     "required": true,
@@ -92,14 +126,15 @@
   "verification": {
     "tests": [
       "Attempt a blocked tool and confirm the runtime refuses execution.",
-      "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+      "Confirm mutation and external-action tools are absent from the runtime manifest.",
       "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts."
     ]
   },
   "review": {
     "owner": "ml-team",
     "last_reviewed": "2026-06-30",
-    "next_review_due": "2026-09-30"
+    "next_review_due": "2026-09-30",
+    "status": "reference_blueprint"
   },
   "tags": [
     "operations",

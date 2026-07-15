@@ -1,9 +1,26 @@
 {
+  "$schema": "../../schema/tool-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
   "tools": [
     {
       "name": "get_notes",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for get_notes. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "read",
+      "data_classes": [
+        "meeting_notes",
+        "employee_data",
+        "task_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "action-item-tracker"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -12,8 +29,23 @@
     },
     {
       "name": "extract_items",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for extract_items. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "meeting_notes",
+        "employee_data",
+        "task_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "action-item-tracker"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -22,8 +54,22 @@
     },
     {
       "name": "resolve_owner",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for resolve_owner. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "employee_data",
+        "task_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "action-item-tracker"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -32,8 +78,21 @@
     },
     {
       "name": "flag_ambiguous",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for flag_ambiguous. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "task_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "action-item-tracker"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -42,8 +101,22 @@
     },
     {
       "name": "draft_followup",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for draft_followup. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "employee_data",
+        "task_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "action-item-tracker"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -52,18 +125,22 @@
     },
     {
       "name": "emit_json",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for emit_json. Replace with a real integration when implementing.",
-      "input_schema": {
-        "type": "object",
-        "properties": {},
-        "additionalProperties": true
-      }
-    },
-    {
-      "name": "write_to_system",
-      "risk": "approval_required",
-      "description": "Example approval-gated write tool. Stub only.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "employee_data",
+        "task_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "action-item-tracker"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},

@@ -1,0 +1,113 @@
+export const SAMPLES = {
+  invoice: {
+    label: "Invoice extractor contract",
+    value: JSON.stringify(
+      {
+        $schema: "../schema/rihalguard-v1.schema.json",
+        standard_version: "1.0.0",
+        agent_id: "invoice-extractor",
+        agent_name: "Invoice Extraction Agent",
+        version: "0.1.0",
+        owner: "finance-ops",
+        last_reviewed: "2026-06-30",
+        risk_level: "RG-2",
+        workflow_pattern: "extract_validate_review",
+        purpose: "Extract structured invoice data and surface uncertainty before downstream use.",
+        maximum_impact:
+          "Returns an incorrect invoice field for human review; cannot approve, pay, post, or write to financial systems.",
+        scope: {
+          allowed: ["read invoice input", "extract fields", "score confidence", "validate totals", "flag review cases"],
+          forbidden: ["approve invoices", "initiate payments", "post to ERP", "invent missing financial values"],
+        },
+        tool_policy: {
+          allowed_tools: ["get_document", "parse_fields", "score_confidence", "validate_totals", "flag_for_review", "emit_json"],
+          approval_required_tools: [],
+          blocked_tools: ["delete_records", "approve_payment", "change_permissions", "publish_externally", "override_human_review"],
+          fail_closed_on_unknown_tools: true,
+        },
+        data_policy: {
+          data_classes: ["business_document", "financial_data", "possible_pii"],
+          storage: "task_scoped",
+          persistent_memory_allowed: false,
+          client_isolation_required: true,
+          redaction_required_in_logs: true,
+        },
+        output_policy: {
+          format: "structured_json",
+          never_fabricates: true,
+          requires_source_evidence: true,
+          unsupported_claim_policy: {
+            behavior: "mark_unknown",
+            creative_drafting_allowed: false,
+            generated_content_label_required: false,
+          },
+        },
+        runtime_limits: {
+          max_reasoning_steps: 8,
+          timeout_seconds: 120,
+          max_cost_usd_per_run: 0.25,
+        },
+        human_review: {
+          required_when: ["low_confidence", "missing_required_field", "math_mismatch", "unsupported_format"],
+          destination: "human_review_queue",
+          trigger_definitions: [
+            {
+              id: "low_confidence",
+              evaluation: "judgment",
+              condition: "The agent cannot support a required finding with sufficient source evidence.",
+              action: "route_for_review",
+            },
+            {
+              id: "missing_required_field",
+              evaluation: "machine",
+              condition: { metric: "required_fields_present", operator: "=", value: false },
+              action: "route_for_review",
+            },
+            {
+              id: "math_mismatch",
+              evaluation: "machine",
+              condition: { metric: "calculated_total_matches_source", operator: "=", value: false },
+              action: "route_for_review",
+            },
+            {
+              id: "unsupported_format",
+              evaluation: "machine",
+              condition: { metric: "input_format_supported", operator: "=", value: false },
+              action: "route_for_review",
+            },
+          ],
+        },
+        audit: {
+          required: true,
+          append_only: true,
+          events: ["input_received", "tools_called", "output_generated", "review_flag_created"],
+        },
+        verification: {
+          tests: [
+            "Attempt a blocked tool and confirm the runtime refuses execution.",
+            "Confirm execution tools are absent from the runtime manifest.",
+            "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts.",
+          ],
+        },
+        review: {
+          owner: "ml-team",
+          last_reviewed: "2026-06-30",
+          next_review_due: "2026-09-30",
+          status: "reference_blueprint",
+        },
+      },
+      null,
+      2,
+    ),
+  },
+  prompt: {
+    label: "System prompt only",
+    value:
+      "You extract invoice data into structured JSON. Extract only what is present. Attach confidence. Preserve printed values. Flag uncertainty and mismatches. Never approve, pay, post, or invent missing values.\n\nHard rules:\n- Stay inside the RihalGuard contract.\n- Use only available tools.\n- Do not fabricate missing facts.\n- Flag uncertainty instead of smoothing it over.\n- Do not perform blocked or approval-required actions directly.",
+  },
+  risky: {
+    label: "Risky prompt",
+    value:
+      "You are an autonomous operations agent. Use any available tools to solve the user's request quickly. Retry until successful. If records need to be updated, update them directly and summarize what changed.",
+  },
+};

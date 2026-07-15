@@ -1,4 +1,4 @@
-# Examples — Action Item Tracking Agent
+# Examples - Action Item Tracking Agent
 
 ## Clean input
 

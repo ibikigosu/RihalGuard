@@ -12,12 +12,13 @@ The blueprint is not supposed to be finished software. It is a governed starting
 4. Tighten the purpose and maximum impact.
 5. Decide which tools are allowed, approval-required, or blocked.
 6. Replace mock tools one at a time.
-7. Add evals for the highest-risk failure.
-8. Run validation before sharing.
+7. Classify every imported or custom tool in `tools.json` before adding it to the contract.
+8. Add evals for the highest-risk failure.
+9. Run validation before sharing.
 
 ```bash
 python3 scripts/create_blueprint.py meeting-summarizer my-meeting-agent
-python3 scripts/validate.py
+uv run python scripts/validate.py
 python3 work/my-meeting-agent/evals/run.py
 ```
 
@@ -52,7 +53,7 @@ Keep these approval-gated until a reviewer signs off:
 
 A blueprint is demo-ready when:
 
-- `python3 scripts/validate.py` passes
+- `uv run python scripts/validate.py` passes
 - the agent's own `evals/run.py` passes
 - the README explains the boundary in plain language
 - unsafe tools are absent, blocked, or approval-gated

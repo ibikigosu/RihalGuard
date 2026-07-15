@@ -1,4 +1,4 @@
-# Setup guide — Invoice Extraction Agent
+# Setup guide - Invoice Extraction Agent
 
 ```bash
 python3 run.py

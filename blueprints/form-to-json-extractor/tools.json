@@ -1,9 +1,26 @@
 {
+  "$schema": "../../schema/tool-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
   "tools": [
     {
       "name": "get_input",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for get_input. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "read",
+      "data_classes": [
+        "business_record",
+        "possible_pii",
+        "client_data"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "form-to-json-extractor"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -12,8 +29,19 @@
     },
     {
       "name": "load_schema",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for load_schema. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "read",
+      "data_classes": [],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "form-to-json-extractor"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -22,8 +50,23 @@
     },
     {
       "name": "extract_fields",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for extract_fields. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "business_record",
+        "possible_pii",
+        "client_data"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "form-to-json-extractor"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -32,8 +75,23 @@
     },
     {
       "name": "validate_schema",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for validate_schema. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "business_record",
+        "possible_pii",
+        "client_data"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "form-to-json-extractor"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -42,8 +100,22 @@
     },
     {
       "name": "flag_for_review",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for flag_for_review. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "possible_pii",
+        "client_data"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "form-to-json-extractor"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -52,18 +124,23 @@
     },
     {
       "name": "emit_json",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for emit_json. Replace with a real integration when implementing.",
-      "input_schema": {
-        "type": "object",
-        "properties": {},
-        "additionalProperties": true
-      }
-    },
-    {
-      "name": "write_to_system",
-      "risk": "approval_required",
-      "description": "Example approval-gated write tool. Stub only.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "business_record",
+        "possible_pii",
+        "client_data"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "form-to-json-extractor"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},

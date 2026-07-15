@@ -45,12 +45,7 @@
       "flag_for_review",
       "emit_json"
     ],
-    "approval_required_tools": [
-      "update_ats",
-      "send_assessment",
-      "send_message",
-      "write_to_system"
-    ],
+    "approval_required_tools": [],
     "blocked_tools": [
       "rank_candidates",
       "reject_candidate",
@@ -95,7 +90,12 @@
       "automatic rejection",
       "automatic advancement",
       "protected-characteristic inference"
-    ]
+    ],
+    "unsupported_claim_policy": {
+      "behavior": "mark_unknown",
+      "creative_drafting_allowed": false,
+      "generated_content_label_required": false
+    }
   },
   "runtime_limits": {
     "max_reasoning_steps": 8,
@@ -112,7 +112,63 @@
       "suspected_proxy_leakage",
       "unsupported_resume_format"
     ],
-    "destination": "recruiter_review_queue"
+    "destination": "recruiter_review_queue",
+    "trigger_definitions": [
+      {
+        "id": "every_assessment",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "assessment_generated",
+          "operator": "=",
+          "value": true
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "missing_role_criteria",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "approved_role_criteria_present",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "unclear_required_qualification",
+        "evaluation": "judgment",
+        "condition": "An approved requirement cannot be interpreted without recruiter input.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "conflicting_evidence",
+        "evaluation": "judgment",
+        "condition": "Resume evidence supports incompatible findings for the same requirement.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "low_confidence",
+        "evaluation": "judgment",
+        "condition": "The agent cannot support a required finding with sufficient source evidence.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "suspected_proxy_leakage",
+        "evaluation": "judgment",
+        "condition": "Protected-characteristic information or a proxy may have influenced the assessment.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "unsupported_resume_format",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "resume_format_supported",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      }
+    ]
   },
   "audit": {
     "required": true,
@@ -131,6 +187,7 @@
   "verification": {
     "tests": [
       "Attempt ranking, rejection, advancement, hiring, and candidate-contact tools and confirm the runtime blocks them.",
+      "Confirm mutation and external-action tools are absent from the runtime manifest.",
       "Confirm decision and candidate-contact tools are absent from the exposed tool registry.",
       "Confirm every output label is an assessment rather than a hiring disposition.",
       "Confirm the prompt excludes protected characteristics and proxy signals from assessment.",
@@ -141,7 +198,8 @@
   "review": {
     "owner": "talent-acquisition-and-ml-team",
     "last_reviewed": "2026-07-09",
-    "next_review_due": "2026-10-09"
+    "next_review_due": "2026-10-09",
+    "status": "reference_blueprint"
   },
   "tags": [
     "hr-recruiting",

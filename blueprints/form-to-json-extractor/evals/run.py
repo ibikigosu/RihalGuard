@@ -16,7 +16,7 @@ for tool in policy["tool_policy"].get("approval_required_tools", []):
     checks.append((f"approval tool '{tool}' requires approval", is_gated(tool) == "requires_approval"))
 for tool in policy["tool_policy"].get("allowed_tools", []):
     checks.append((f"allowed tool '{tool}' executes", run_tool(tool).get("status") == "ok"))
-checks.append(("unknown risky tool fails closed", is_gated("delete_everything") == "blocked"))
+checks.append(("unknown tool fails closed", is_gated("delete_everything") == "blocked"))
 passed = sum(1 for _, ok in checks if ok)
 for name, ok in checks:
     print(("PASS  " if ok else "FAIL  ") + name)

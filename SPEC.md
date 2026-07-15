@@ -4,7 +4,9 @@ RihalGuard is a lightweight governance standard for enterprise AI agents.
 
 It defines the minimum contract an agent should have before a team treats it as more than a throwaway demo: purpose, risk level, maximum impact, tool boundaries, data handling, human-review triggers, audit events, and verification tests.
 
-The contract is written in `rihalguard.json`. The runtime is expected to enforce it.
+The contract is written in `rihalguard.json` and reviewed before production integration.
+It records intended boundaries and required controls, but does not prove that a runtime enforces them.
+Compatible runtimes may consume selected fields and must separately provide enforcement evidence.
 
 ## Design goals
 
@@ -47,7 +49,7 @@ Risk is classified by the most consequential action the agent is technically abl
 | RG-2 | Structured Output | Extracts, summarizes, classifies, drafts, or recommends. No side effects. |
 | RG-3 | Review-Gated | Prepares actions or payloads, but human approval is required before mutation. |
 | RG-4 | Controlled Execution | Executes limited reversible actions inside approved scope. |
-| RG-5 | Autonomous Workflow | Completes end-to-end workflows under strict limits, audit, and rollback controls. |
+| RG-5 | Autonomous Workflow | Can execute consequential actions without complete approval, reversibility, or execution bounds. |
 
 If an agent has one RG-4 tool, the agent should be reviewed as RG-4 even if most of its work is RG-2.
 
@@ -78,7 +80,19 @@ Tools must be classified before implementation:
 
 Unknown tools should fail closed.
 
+An unknown tool is blocked, not merely sent for approval.
+A custom or imported tool may become allowed or approval-required only after its identity, authority, data access, side effects, reversibility, approval needs, audit needs, owner, and permitted agent scopes are reviewed.
+Canonical tool facts belong to the tool owner; an agent owner decides whether the reviewed tool belongs in the agent's policy.
+
 Prompt rules are not enough. If a tool must never be called, it should be absent, blocked, or approval-gated in code.
+
+Every allowed or approval-required tool in a blueprint must appear in that blueprint's reviewed `tools.json` manifest.
+Blocked tool names may be absent from the runtime manifest so that the capability is unavailable as well as denied by policy.
+
+## Workflow pattern
+
+`workflow_pattern` is a short governance shorthand for the expected control shape, such as `extract_validate_review` or `plan_review_execute`.
+It helps reviewers compare designs but does not prescribe orchestration, implementation steps, or runtime ownership.
 
 ## Data policy
 
@@ -106,15 +120,33 @@ Good triggers:
 - request for a write/external action
 - sensitive content
 
+The `required_when` list remains the stable v1 trigger identifier list.
+Contracts may add `trigger_definitions` to describe whether a trigger is machine-evaluated or judgment-based, the condition that activates it, and the review action.
+Machine-evaluated triggers should declare measurable conditions where practical.
+
+## Output integrity
+
+The v1 `never_fabricates` boolean is retained for compatibility but is deprecated because it is too absolute to describe behavior precisely.
+New and updated contracts should also declare `unsupported_claim_policy`.
+That policy must say what happens when evidence is absent, whether creative drafting is allowed, and whether generated draft content must be labeled.
+
+## Enforcement responsibility
+
+Every RihalGuard field is design-time review evidence.
+Some fields, including tool allowlists and runtime limits, can also be consumed by compatible runtimes.
+Enforceability is deployment-specific, so RihalGuard does not label a field as universally runtime-enforced.
+Each production integration must record which fields it consumes, which controls remain procedural, and what test or evidence demonstrates the mapping.
+
 ## Verification
 
 Every blueprint must include deterministic safety checks. At minimum:
 
 1. blocked tools are blocked
-2. approval-required tools return `requires_approval`
+2. approval-required tools return `requires_approval` when the contract declares any
 3. allowed mock tools can execute
-4. unknown risky tools fail closed
+4. unknown tools fail closed
 5. ambiguous input is flagged instead of invented away
+6. RG-0 through RG-2 manifests contain no execution tools
 
 Behavioral evals should be added as the blueprint matures.
 
@@ -131,3 +163,6 @@ Any change to these fields is a governance change:
 - `runtime_limits`
 
 Treat those changes differently from normal prompt or documentation edits.
+
+The Rihal adoption process, role ownership, and lifecycle are defined in [`docs/operating-model.md`](docs/operating-model.md).
+Schema compatibility and migration rules are defined in [`docs/versioning.md`](docs/versioning.md).

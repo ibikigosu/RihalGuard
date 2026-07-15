@@ -1,9 +1,27 @@
 {
+  "$schema": "../../schema/tool-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
   "tools": [
     {
       "name": "get_transcript",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for get_transcript. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "read",
+      "data_classes": [
+        "meeting_transcript",
+        "employee_data",
+        "possible_pii",
+        "confidential_business_context"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "meeting-summarizer"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -12,8 +30,22 @@
     },
     {
       "name": "segment_topics",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for segment_topics. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "meeting_transcript",
+        "confidential_business_context"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "meeting-summarizer"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -22,8 +54,23 @@
     },
     {
       "name": "extract_decisions",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for extract_decisions. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "meeting_transcript",
+        "employee_data",
+        "confidential_business_context"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "meeting-summarizer"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -32,8 +79,23 @@
     },
     {
       "name": "extract_action_items",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for extract_action_items. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "meeting_transcript",
+        "employee_data",
+        "confidential_business_context"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "meeting-summarizer"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -42,8 +104,23 @@
     },
     {
       "name": "redact_pii",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for redact_pii. Replace with a real integration when implementing.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "meeting_transcript",
+        "employee_data",
+        "possible_pii"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "meeting-summarizer"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},
@@ -52,18 +129,24 @@
     },
     {
       "name": "summarize",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Mock starter tool for summarize. Replace with a real integration when implementing.",
-      "input_schema": {
-        "type": "object",
-        "properties": {},
-        "additionalProperties": true
-      }
-    },
-    {
-      "name": "write_to_system",
-      "risk": "approval_required",
-      "description": "Example approval-gated write tool. Stub only.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "meeting_transcript",
+        "employee_data",
+        "possible_pii",
+        "confidential_business_context"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "meeting-summarizer"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {},

@@ -1,4 +1,4 @@
-# Examples — Meeting Summary Agent
+# Examples - Meeting Summary Agent
 
 ## Clean input
 

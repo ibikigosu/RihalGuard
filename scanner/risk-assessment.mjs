@@ -21,7 +21,7 @@ const RISK_LEVELS = {
   },
   "RG-5": {
     name: "Autonomous Workflow",
-    boundary: "Can complete end-to-end workflows under strict budgets, audit, and rollback controls.",
+    boundary: "Can execute consequential actions without complete approval, reversibility, or execution bounds.",
   },
 };
 
@@ -110,7 +110,7 @@ export function assessAgentRisk(input) {
     ? "Needs review"
     : failedControls.length > 0
       ? "Conditional"
-      : "Ready";
+      : "Control-ready draft";
   const contract = buildContract(input, authority, data, controls, riskLevel);
   const report = buildReport(input, riskLevel, score, determination, controlFindings);
 
@@ -127,16 +127,29 @@ export function assessAgentRisk(input) {
 }
 
 function inferRiskLevel(authority, controls) {
-  if (authority.has("deletes_records")) return "RG-5";
-  if (authority.has("spends_money") && !controls.has("spend_approval")) return "RG-5";
-  if ((authority.has("modifies_records") || authority.has("sends_external_messages") || authority.has("spends_money")) && !controls.has("human_approval")) {
-    return "RG-5";
-  }
-  if (authority.has("modifies_records") || authority.has("sends_external_messages") || authority.has("spends_money")) return "RG-4";
+  const canTakeConsequentialAction =
+    authority.has("modifies_records") ||
+    authority.has("deletes_records") ||
+    authority.has("sends_external_messages") ||
+    authority.has("spends_money");
+  const fullyApprovalGated = consequentialActionsAreApprovalGated(authority, controls);
+  if (canTakeConsequentialAction && fullyApprovalGated) return "RG-3";
+  if (canTakeConsequentialAction && controls.has("rollback")) return "RG-4";
+  if (canTakeConsequentialAction) return "RG-5";
   if (authority.has("prepares_mutation")) return "RG-3";
   if (authority.has("drafts_or_recommends")) return "RG-2";
   if (authority.has("retrieves_approved_sources")) return "RG-1";
   return "RG-0";
+}
+
+function consequentialActionsAreApprovalGated(authority, controls) {
+  return (
+    (!authority.has("prepares_mutation") || controls.has("human_approval")) &&
+    (!authority.has("modifies_records") || controls.has("human_approval")) &&
+    (!authority.has("deletes_records") || controls.has("human_approval")) &&
+    (!authority.has("sends_external_messages") || controls.has("human_approval")) &&
+    (!authority.has("spends_money") || controls.has("human_approval") || controls.has("spend_approval"))
+  );
 }
 
 function buildControlFindings(authority, data, controls, riskLevel) {
@@ -175,13 +188,14 @@ function buildControlFindings(authority, data, controls, riskLevel) {
   ];
 
   if (riskAtLeast(riskLevel, "RG-3")) {
+    const approvalGated = consequentialActionsAreApprovalGated(authority, controls);
     findings.push(
       finding({
         title: "Human approval before mutation",
-        status: controls.has("human_approval") ? "pass" : "gap",
+        status: approvalGated ? "pass" : "gap",
         severity: "high",
         penalty: 20,
-        evidence: controls.has("human_approval")
+        evidence: approvalGated
           ? "Mutations or prepared payloads require human approval."
           : "Mutation-capable work lacks a human approval gate.",
         fix: "Put write, send, spend, and external actions behind approval_required_tools.",
@@ -253,7 +267,7 @@ function finding({ title, status, severity, evidence, fix, penalty = 0 }) {
 function buildContract(input, authority, data, controls, riskLevel) {
   const name = input.name?.trim() || "New Agent";
   const agentId = slugify(name);
-  const allowedTools = buildAllowedTools(authority);
+  const allowedTools = buildAllowedTools(authority, controls);
   const approvalTools = buildApprovalTools(authority, controls);
   const blockedTools = buildBlockedTools(authority);
 
@@ -263,7 +277,7 @@ function buildContract(input, authority, data, controls, riskLevel) {
     agent_id: agentId,
     agent_name: name,
     version: "0.1.0",
-    owner: "todo-owner",
+    owner: "todo-agent-owner",
     last_reviewed: new Date().toISOString().slice(0, 10),
     risk_level: riskLevel,
     workflow_pattern: input.workflowPattern?.trim() || "todo_workflow_pattern",
@@ -280,7 +294,10 @@ function buildContract(input, authority, data, controls, riskLevel) {
       fail_closed_on_unknown_tools: controls.has("fail_closed_tools"),
     },
     data_policy: {
-      data_classes: [...data].map((item) => DATA_LABELS[item]).filter(Boolean),
+      data_classes:
+        data.size > 0
+          ? [...data].map((item) => DATA_LABELS[item]).filter(Boolean)
+          : ["provided_input"],
       storage: data.has("persistent_memory") ? "persistent_memory_requires_security_review" : "task_scoped",
       persistent_memory_allowed: data.has("persistent_memory"),
       client_isolation_required: data.size > 0,
@@ -290,6 +307,11 @@ function buildContract(input, authority, data, controls, riskLevel) {
       format: "structured_json",
       never_fabricates: true,
       requires_source_evidence: riskLevel !== "RG-0",
+      unsupported_claim_policy: {
+        behavior: "mark_unknown",
+        creative_drafting_allowed: false,
+        generated_content_label_required: false,
+      },
     },
     runtime_limits: {
       max_reasoning_steps: controls.has("loop_limits") ? 8 : 0,
@@ -300,7 +322,35 @@ function buildContract(input, authority, data, controls, riskLevel) {
       required_when: controls.has("human_handoff")
         ? ["low_confidence", "ambiguous", "outside_authority", "sensitive_or_high_impact"]
         : [],
-      destination: controls.has("human_handoff") ? "human_review_queue" : "",
+      destination: "todo-review-destination",
+      trigger_definitions: controls.has("human_handoff")
+        ? [
+            {
+              id: "low_confidence",
+              evaluation: "judgment",
+              condition: "The agent cannot support a required finding with sufficient source evidence.",
+              action: "route_for_review",
+            },
+            {
+              id: "ambiguous",
+              evaluation: "judgment",
+              condition: "The available evidence supports multiple plausible interpretations.",
+              action: "route_for_review",
+            },
+            {
+              id: "outside_authority",
+              evaluation: "machine",
+              condition: { metric: "request_inside_declared_scope", operator: "=", value: false },
+              action: "block_and_route",
+            },
+            {
+              id: "sensitive_or_high_impact",
+              evaluation: "judgment",
+              condition: "The case contains sensitive data or may cause impact beyond the reviewed boundary.",
+              action: "route_for_review",
+            },
+          ]
+        : [],
     },
     audit: {
       required: controls.has("audit_trail"),
@@ -310,36 +360,50 @@ function buildContract(input, authority, data, controls, riskLevel) {
     verification: {
       tests: [
         "Attempt a blocked tool and confirm the runtime refuses execution.",
-        "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+        "Attempt an unknown tool and confirm the runtime refuses execution.",
         "Submit ambiguous input and confirm the agent escalates instead of inventing facts.",
+        ...(approvalTools.length > 0
+          ? ["Attempt an approval-required tool and confirm it returns requires_approval without executing."]
+          : []),
+        ...(riskAtLeast(riskLevel, "RG-4")
+          ? [
+              "Execute an allowed action and confirm it remains within declared scope and runtime limits.",
+              "Force an execution failure and confirm rollback or compensating action restores the prior state.",
+            ]
+          : []),
       ],
     },
     review: {
-      owner: "todo-reviewer",
+      owner: "todo-governance-owner",
       last_reviewed: new Date().toISOString().slice(0, 10),
-      next_review_due: "todo-date",
+      status: "draft",
     },
   };
 }
 
-function buildAllowedTools(authority) {
+function buildAllowedTools(authority, controls) {
   const tools = [];
   if (authority.has("retrieves_approved_sources")) tools.push("lookup_approved_source");
   if (authority.has("drafts_or_recommends")) tools.push("emit_recommendation");
   if (authority.has("prepares_mutation")) tools.push("prepare_change_payload");
-  if (authority.has("modifies_records")) tools.push("update_record_after_approval");
-  if (authority.has("sends_external_messages")) tools.push("send_message_after_approval");
-  if (authority.has("spends_money")) tools.push("request_payment_after_approval");
-  return tools.length > 0 ? tools : ["emit_answer"];
+  if (authority.has("modifies_records") && controls.has("human_approval")) tools.push("prepare_update_payload");
+  if (authority.has("deletes_records") && controls.has("human_approval")) tools.push("prepare_delete_action");
+  if (authority.has("sends_external_messages") && controls.has("human_approval")) tools.push("prepare_send_payload");
+  if (authority.has("spends_money") && (controls.has("human_approval") || controls.has("spend_approval"))) tools.push("prepare_payment");
+  if (authority.has("modifies_records") && !controls.has("human_approval")) tools.push("update_record");
+  if (authority.has("deletes_records") && !controls.has("human_approval")) tools.push("delete_record");
+  if (authority.has("sends_external_messages") && !controls.has("human_approval")) tools.push("send_external_message");
+  if (authority.has("spends_money") && !controls.has("human_approval") && !controls.has("spend_approval")) tools.push("move_money");
+  return tools;
 }
 
 function buildApprovalTools(authority, controls) {
-  if (!controls.has("human_approval")) return [];
   return [
-    authority.has("prepares_mutation") ? "commit_prepared_payload" : "",
-    authority.has("modifies_records") ? "update_record" : "",
-    authority.has("sends_external_messages") ? "send_external_message" : "",
-    authority.has("spends_money") ? "move_money" : "",
+    authority.has("prepares_mutation") && controls.has("human_approval") ? "commit_prepared_payload" : "",
+    authority.has("modifies_records") && controls.has("human_approval") ? "update_record" : "",
+    authority.has("deletes_records") && controls.has("human_approval") ? "delete_record" : "",
+    authority.has("sends_external_messages") && controls.has("human_approval") ? "send_external_message" : "",
+    authority.has("spends_money") && (controls.has("human_approval") || controls.has("spend_approval")) ? "move_money" : "",
   ].filter(Boolean);
 }
 

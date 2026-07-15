@@ -1,4 +1,4 @@
-# Workflow — Invoice Extraction Agent
+# Workflow - Invoice Extraction Agent
 
 1. Receive input inside the approved scope.
 2. Use allowed tools to gather or transform information.

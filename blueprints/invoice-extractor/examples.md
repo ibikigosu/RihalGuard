@@ -1,4 +1,4 @@
-# Examples — Invoice Extraction Agent
+# Examples - Invoice Extraction Agent
 
 ## Clean input
 

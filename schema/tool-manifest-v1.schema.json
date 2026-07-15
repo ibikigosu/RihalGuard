@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ibikigosu/RihalGuard/schema/tool-manifest-v1.schema.json",
+  "title": "RihalGuard Tool Manifest",
+  "description": "Reviewed metadata for tools available to one RihalGuard blueprint.",
+  "type": "object",
+  "required": ["$schema", "manifest_version", "tools"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "manifest_version": {
+      "const": "1.0.0"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/tool"
+      }
+    }
+  },
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "uniqueItems": true
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "tool": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "risk",
+        "description",
+        "authority",
+        "data_classes",
+        "external_side_effects",
+        "reversibility",
+        "approval",
+        "audit_required",
+        "owner",
+        "allowed_agent_scopes",
+        "input_schema"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "version": {
+          "$ref": "#/definitions/semanticVersion"
+        },
+        "risk": {
+          "type": "string",
+          "enum": ["read_or_transform", "approval_required", "controlled_execution", "autonomous_execution"]
+        },
+        "description": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "authority": {
+          "type": "string",
+          "enum": ["read", "transform", "prepare_mutation", "write", "external_action", "permission_change", "money_movement"]
+        },
+        "data_classes": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "external_side_effects": {
+          "type": "boolean"
+        },
+        "reversibility": {
+          "type": "string",
+          "enum": ["not_applicable", "reversible", "compensating_action", "irreversible", "unknown"]
+        },
+        "approval": {
+          "type": "string",
+          "enum": ["not_required", "required", "prohibited"]
+        },
+        "audit_required": {
+          "type": "boolean"
+        },
+        "owner": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "allowed_agent_scopes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "uniqueItems": true
+        },
+        "input_schema": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

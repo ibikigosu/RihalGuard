@@ -14,6 +14,8 @@ Use this before a blueprint is used beyond a demo.
 - Are dangerous tools absent, blocked, or approval-gated?
 - Do unknown tools fail closed?
 - Are write/external tools separated from read/transform tools?
+- Does every allowed or approval-required tool have reviewed metadata and an accountable owner?
+- Does the manifest describe authority, data access, side effects, reversibility, approval, audit, and allowed agent scopes?
 - Does the runtime check policy before tool execution?
 
 ## Data
@@ -28,6 +30,7 @@ Use this before a blueprint is used beyond a demo.
 - Does the agent show uncertainty?
 - Does it require source evidence where appropriate?
 - Does it avoid inventing missing facts?
+- Does `unsupported_claim_policy` define what happens when evidence is missing?
 - Does it produce a reviewable structure?
 
 ## Evals

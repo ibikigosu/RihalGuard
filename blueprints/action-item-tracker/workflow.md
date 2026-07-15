@@ -1,4 +1,4 @@
-# Workflow — Action Item Tracking Agent
+# Workflow - Action Item Tracking Agent
 
 1. Receive input inside the approved scope.
 2. Use allowed tools to gather or transform information.

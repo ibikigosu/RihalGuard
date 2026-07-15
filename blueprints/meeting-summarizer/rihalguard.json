@@ -4,7 +4,7 @@
   "agent_id": "meeting-summarizer",
   "agent_name": "Meeting Summary Agent",
   "version": "0.1.0",
-  "owner": "agent-owner",
+  "owner": "workplace-productivity-team",
   "last_reviewed": "2026-06-30",
   "risk_level": "RG-2",
   "workflow_pattern": "summarize_extract_verify",
@@ -36,12 +36,7 @@
       "redact_pii",
       "summarize"
     ],
-    "approval_required_tools": [
-      "send_message",
-      "create_ticket",
-      "write_to_system",
-      "post_to_external_system"
-    ],
+    "approval_required_tools": [],
     "blocked_tools": [
       "delete_records",
       "approve_payment",
@@ -67,7 +62,12 @@
   "output_policy": {
     "format": "structured_json",
     "never_fabricates": true,
-    "requires_source_evidence": true
+    "requires_source_evidence": true,
+    "unsupported_claim_policy": {
+      "behavior": "mark_unknown",
+      "creative_drafting_allowed": false,
+      "generated_content_label_required": false
+    }
   },
   "runtime_limits": {
     "max_reasoning_steps": 8,
@@ -81,7 +81,33 @@
       "low_transcript_quality",
       "sensitive_content"
     ],
-    "destination": "human_review_queue"
+    "destination": "human_review_queue",
+    "trigger_definitions": [
+      {
+        "id": "unclear_ownership",
+        "evaluation": "judgment",
+        "condition": "The source does not explicitly identify one accountable owner.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "ambiguous_decision",
+        "evaluation": "judgment",
+        "condition": "The transcript supports multiple plausible interpretations of a decision.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "low_transcript_quality",
+        "evaluation": "judgment",
+        "condition": "Missing, corrupted, or unclear transcript content prevents a faithful summary.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "sensitive_content",
+        "evaluation": "judgment",
+        "condition": "The source contains content that requires a human handling decision.",
+        "action": "route_for_review"
+      }
+    ]
   },
   "audit": {
     "required": true,
@@ -96,14 +122,15 @@
   "verification": {
     "tests": [
       "Attempt a blocked tool and confirm the runtime refuses execution.",
-      "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+      "Confirm mutation and external-action tools are absent from the runtime manifest.",
       "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts."
     ]
   },
   "review": {
     "owner": "ml-team",
     "last_reviewed": "2026-06-30",
-    "next_review_due": "2026-09-30"
+    "next_review_due": "2026-09-30",
+    "status": "reference_blueprint"
   },
   "tags": [
     "workplace-productivity",

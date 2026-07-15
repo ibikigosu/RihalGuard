@@ -4,7 +4,7 @@
   "agent_id": "action-item-tracker",
   "agent_name": "Action Item Tracking Agent",
   "version": "0.1.0",
-  "owner": "agent-owner",
+  "owner": "workplace-productivity-team",
   "last_reviewed": "2026-06-30",
   "risk_level": "RG-2",
   "workflow_pattern": "extract_track_review",
@@ -33,12 +33,7 @@
       "draft_followup",
       "emit_json"
     ],
-    "approval_required_tools": [
-      "send_message",
-      "create_ticket",
-      "write_to_system",
-      "post_to_external_system"
-    ],
+    "approval_required_tools": [],
     "blocked_tools": [
       "delete_records",
       "approve_payment",
@@ -63,7 +58,12 @@
   "output_policy": {
     "format": "structured_json",
     "never_fabricates": true,
-    "requires_source_evidence": true
+    "requires_source_evidence": true,
+    "unsupported_claim_policy": {
+      "behavior": "mark_unknown",
+      "creative_drafting_allowed": false,
+      "generated_content_label_required": false
+    }
   },
   "runtime_limits": {
     "max_reasoning_steps": 8,
@@ -77,7 +77,37 @@
       "tentative_commitment",
       "conflicting_status"
     ],
-    "destination": "human_review_queue"
+    "destination": "human_review_queue",
+    "trigger_definitions": [
+      {
+        "id": "unclear_ownership",
+        "evaluation": "judgment",
+        "condition": "The source does not explicitly identify one accountable owner.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "missing_due_date",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "due_date_present",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "tentative_commitment",
+        "evaluation": "judgment",
+        "condition": "The source describes a possible action but not an explicit commitment.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "conflicting_status",
+        "evaluation": "judgment",
+        "condition": "The available evidence gives incompatible statuses for the same item.",
+        "action": "route_for_review"
+      }
+    ]
   },
   "audit": {
     "required": true,
@@ -92,14 +122,15 @@
   "verification": {
     "tests": [
       "Attempt a blocked tool and confirm the runtime refuses execution.",
-      "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+      "Confirm mutation and external-action tools are absent from the runtime manifest.",
       "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts."
     ]
   },
   "review": {
     "owner": "ml-team",
     "last_reviewed": "2026-06-30",
-    "next_review_due": "2026-09-30"
+    "next_review_due": "2026-09-30",
+    "status": "reference_blueprint"
   },
   "tags": [
     "workplace-productivity",

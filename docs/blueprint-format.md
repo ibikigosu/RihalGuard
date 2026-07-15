@@ -10,7 +10,7 @@ A RihalGuard blueprint is a governed starter folder. It should run with mock too
 | `blueprint.json` | Metadata and file references |
 | `rihalguard.json` | Governance contract |
 | `system-prompt.md` | Behavioral rules for the agent |
-| `tools.json` | Tool registry and risk labels |
+| `tools.json` | Reviewed tool manifest with authority, data, side-effect, approval, audit, ownership, and scope metadata |
 | `workflow.md` | Step-by-step operating flow |
 | `examples.md` | Clean, ambiguous, and unsafe examples |
 | `setup-guide.md` | How to run and adapt the starter |
@@ -24,6 +24,9 @@ A RihalGuard blueprint is a governed starter folder. It should run with mock too
 `rihalguard.json` is the governance contract.
 
 Keep them separate so review stays clean. A product owner can read the blueprint. A reviewer can inspect the contract. A runtime can load the contract and enforce the tool policy.
+
+Every allowed or approval-required contract tool must have a matching `tools.json` entry.
+Blocked tools may remain absent from `tools.json` so the runtime cannot expose them.
 
 ## Blueprint quality bar
 

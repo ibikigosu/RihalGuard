@@ -1,0 +1,11 @@
+[project]
+name = "rihalguard-validation"
+version = "0.1.0"
+description = "Repository validation dependencies for RihalGuard"
+requires-python = ">=3.10"
+dependencies = [
+  "jsonschema>=4.23,<5",
+]
+
+[tool.uv]
+package = false

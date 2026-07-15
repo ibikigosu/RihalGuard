@@ -1,4 +1,4 @@
-# Setup guide — Meeting Summary Agent
+# Setup guide - Meeting Summary Agent
 
 ```bash
 python3 run.py

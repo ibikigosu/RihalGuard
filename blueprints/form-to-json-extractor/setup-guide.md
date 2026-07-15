@@ -1,4 +1,4 @@
-# Setup guide — Form-to-JSON Extraction Agent
+# Setup guide - Form-to-JSON Extraction Agent
 
 ```bash
 python3 run.py

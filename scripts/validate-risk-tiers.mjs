@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareDeclaredRiskLevel } from "../scanner/risk-validator.mjs";
 
@@ -18,14 +18,16 @@ const failures = [];
 
 for (const file of files) {
   let contract;
+  let manifest;
   try {
     contract = JSON.parse(readFileSync(file, "utf8"));
+    manifest = JSON.parse(readFileSync(resolve(dirname(file), "tools.json"), "utf8"));
   } catch (error) {
     failures.push(`${file}: ${error.message}`);
     continue;
   }
 
-  const result = compareDeclaredRiskLevel(contract);
+  const result = compareDeclaredRiskLevel(contract, manifest);
   const relative = file.startsWith(root) ? file.slice(root.length + 1) : file;
 
   if (!result.declaredKnown) {

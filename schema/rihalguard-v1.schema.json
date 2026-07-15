@@ -2,45 +2,359 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/ibikigosu/RihalGuard/schema/rihalguard-v1.schema.json",
   "title": "RihalGuard Contract",
-  "description": "RihalGuard v1 governance contract for enterprise AI agents. Design-time only: documents purpose, authority, risk, data handling, tool boundaries, review triggers, audit expectations, and verification checks before real integrations are added.",
+  "description": "RihalGuard v1 design-time governance contract for enterprise AI agents.",
   "type": "object",
-  "required": ["standard_version", "agent_id", "agent_name", "version", "risk_level", "workflow_pattern", "purpose", "maximum_impact", "scope", "tool_policy", "data_policy", "output_policy", "runtime_limits", "human_review", "audit", "verification", "review"],
+  "required": [
+    "standard_version",
+    "agent_id",
+    "agent_name",
+    "version",
+    "risk_level",
+    "workflow_pattern",
+    "purpose",
+    "maximum_impact",
+    "scope",
+    "tool_policy",
+    "data_policy",
+    "output_policy",
+    "runtime_limits",
+    "human_review",
+    "audit",
+    "verification",
+    "review"
+  ],
   "properties": {
-    "$schema": { "type": "string", "description": "Path or URL of the JSON Schema used to validate this contract." },
-    "standard_version": { "type": "string", "description": "RihalGuard standard version this contract follows." },
-    "agent_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Stable lowercase identifier for the agent. Use kebab-case, for example invoice-extractor." },
-    "agent_name": { "type": "string", "description": "Human-readable name shown in documentation, review notes, and demos." },
-    "version": { "type": "string", "description": "Version of this specific agent or blueprint contract." },
-    "owner": { "type": "string", "description": "Person or team responsible for this agent. Kept for backwards compatibility; prefer review.owner for new contracts." },
-    "last_reviewed": { "type": "string", "format": "date", "description": "Date this contract was last reviewed. Kept for backwards compatibility; prefer review.last_reviewed for new contracts." },
-    "risk_level": { "type": "string", "enum": ["RG-0", "RG-1", "RG-2", "RG-3", "RG-4", "RG-5"], "description": "Authority class based on the agent's worst-case technically possible action: RG-0 passive input-only, RG-1 approved lookup, RG-2 structured output or recommendation, RG-3 human-gated mutation, RG-4 limited reversible execution, RG-5 autonomous workflow." },
-    "workflow_pattern": { "type": "string", "description": "Short pattern name for how the agent works, such as extract_validate_review, summarize_extract_verify, plan_review_execute, or lookup_summarize." },
-    "purpose": { "type": "string", "description": "Plain-language statement of what the agent is for and who it helps." },
-    "maximum_impact": { "type": "string", "description": "Worst-case action or impact the agent can cause if it fails or is misused. Classify risk by this, not by the happy path." },
+    "$schema": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path or URL of the JSON Schema used to validate this contract."
+    },
+    "standard_version": {
+      "const": "1.0.0",
+      "description": "Exact RihalGuard v1 standard version followed by this contract."
+    },
+    "agent_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Stable kebab-case identifier for the agent."
+    },
+    "agent_name": {
+      "$ref": "#/definitions/nonEmptyString"
+    },
+    "version": {
+      "$ref": "#/definitions/semanticVersion"
+    },
+    "owner": {
+      "$ref": "#/definitions/nonEmptyString",
+      "description": "Person or team responsible for the agent. Kept for v1 compatibility; review.owner identifies the governance reviewer."
+    },
+    "last_reviewed": {
+      "$ref": "#/definitions/date",
+      "description": "Legacy review date kept for v1 compatibility."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["RG-0", "RG-1", "RG-2", "RG-3", "RG-4", "RG-5"],
+      "description": "Authority class based on the agent's worst-case technically possible action."
+    },
+    "workflow_pattern": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$",
+      "description": "Governance shorthand for the expected control shape. It does not prescribe runtime implementation."
+    },
+    "purpose": {
+      "$ref": "#/definitions/nonEmptyString"
+    },
+    "maximum_impact": {
+      "$ref": "#/definitions/nonEmptyString"
+    },
     "scope": {
-      "type": "object", "description": "Explicit authority boundary: what the agent may do and what it must never do.", "required": ["allowed", "forbidden"],
+      "type": "object",
+      "required": ["allowed", "forbidden"],
       "properties": {
-        "allowed": { "$ref": "#/definitions/stringArray", "description": "Actions, decisions, or outputs allowed inside this agent's scope." },
-        "forbidden": { "$ref": "#/definitions/stringArray", "description": "Actions, decisions, or outputs the agent must not perform." }
-      }
+        "allowed": {
+          "$ref": "#/definitions/nonEmptyStringArray"
+        },
+        "forbidden": {
+          "$ref": "#/definitions/nonEmptyStringArray"
+        }
+      },
+      "additionalProperties": true
     },
     "tool_policy": {
-      "type": "object", "description": "Tool boundary defining tools that can run, tools that need approval, and tools that are blocked.", "required": ["allowed_tools", "approval_required_tools", "blocked_tools"],
+      "type": "object",
+      "required": ["allowed_tools", "approval_required_tools", "blocked_tools", "fail_closed_on_unknown_tools"],
       "properties": {
-        "allowed_tools": { "$ref": "#/definitions/stringArray", "description": "Tools the agent may call without extra approval when inside scope." },
-        "approval_required_tools": { "$ref": "#/definitions/stringArray", "description": "Tools that may be prepared or requested, but require human approval before execution." },
-        "blocked_tools": { "$ref": "#/definitions/stringArray", "description": "Tools or actions the agent must never execute." },
-        "fail_closed_on_unknown_tools": { "type": "boolean", "description": "Whether runtime should block any tool not listed in this policy." }
-      }
+        "allowed_tools": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "approval_required_tools": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "blocked_tools": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "fail_closed_on_unknown_tools": {
+          "const": true,
+          "description": "Unknown tools are blocked until they are classified and reviewed."
+        }
+      },
+      "additionalProperties": true
     },
-    "data_policy": { "type": "object", "description": "Data handling rules: data classes, storage, retention, memory, isolation, and log redaction expectations.", "required": ["data_classes", "storage", "persistent_memory_allowed", "redaction_required_in_logs"], "additionalProperties": true },
-    "output_policy": { "type": "object", "description": "Output boundary: required format, evidence expectations, and anti-fabrication rules.", "required": ["format", "never_fabricates"], "additionalProperties": true },
-    "runtime_limits": { "type": "object", "description": "Execution limits such as reasoning steps, timeout, cost ceiling, retries, or loop bounds.", "required": ["max_reasoning_steps"], "additionalProperties": true },
-    "human_review": { "type": "object", "description": "Escalation and handoff policy: when human review is required and where the case should go.", "required": ["required_when", "destination"], "additionalProperties": true },
-    "audit": { "type": "object", "description": "Audit expectations, including whether logs are required, append-only, and which events must be recorded.", "required": ["required", "append_only", "events"], "additionalProperties": true },
-    "verification": { "type": "object", "description": "Checks that prove the agent's stated boundaries hold.", "required": ["tests"], "properties": { "tests": { "$ref": "#/definitions/stringArray", "description": "Named tests, evals, or checks that should pass for this contract." } }, "additionalProperties": true },
-    "review": { "type": "object", "description": "Ownership and review metadata for this contract.", "required": ["owner", "last_reviewed"], "additionalProperties": true }
+    "data_policy": {
+      "type": "object",
+      "required": ["data_classes", "storage", "persistent_memory_allowed", "redaction_required_in_logs"],
+      "properties": {
+        "data_classes": {
+          "$ref": "#/definitions/nonEmptyStringArray"
+        },
+        "storage": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "persistent_memory_allowed": {
+          "type": "boolean"
+        },
+        "client_isolation_required": {
+          "type": "boolean"
+        },
+        "redaction_required_in_logs": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "output_policy": {
+      "type": "object",
+      "required": ["format", "never_fabricates"],
+      "properties": {
+        "format": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "never_fabricates": {
+          "type": "boolean",
+          "description": "Deprecated v1 compatibility field. Prefer unsupported_claim_policy for precise behavior."
+        },
+        "requires_source_evidence": {
+          "type": "boolean"
+        },
+        "unsupported_claim_policy": {
+          "type": "object",
+          "required": ["behavior", "creative_drafting_allowed", "generated_content_label_required"],
+          "properties": {
+            "behavior": {
+              "type": "string",
+              "enum": ["mark_unknown", "leave_blank", "omit", "escalate"]
+            },
+            "creative_drafting_allowed": {
+              "type": "boolean"
+            },
+            "generated_content_label_required": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "runtime_limits": {
+      "type": "object",
+      "required": ["max_reasoning_steps"],
+      "properties": {
+        "max_reasoning_steps": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeout_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_cost_usd_per_run": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_retries": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "human_review": {
+      "type": "object",
+      "required": ["required_when", "destination"],
+      "properties": {
+        "required_when": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "destination": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "trigger_definitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/triggerDefinition"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "audit": {
+      "type": "object",
+      "required": ["required", "append_only", "events"],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "append_only": {
+          "type": "boolean"
+        },
+        "events": {
+          "$ref": "#/definitions/stringArray"
+        }
+      },
+      "additionalProperties": true
+    },
+    "verification": {
+      "type": "object",
+      "required": ["tests"],
+      "properties": {
+        "tests": {
+          "$ref": "#/definitions/nonEmptyStringArray"
+        }
+      },
+      "additionalProperties": true
+    },
+    "review": {
+      "type": "object",
+      "required": ["owner", "last_reviewed"],
+      "properties": {
+        "owner": {
+          "$ref": "#/definitions/nonEmptyString"
+        },
+        "last_reviewed": {
+          "$ref": "#/definitions/date"
+        },
+        "next_review_due": {
+          "$ref": "#/definitions/date"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["reference_blueprint", "draft", "in_review", "approved", "integrated", "periodic_review", "deprecated"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "tags": {
+      "$ref": "#/definitions/stringArray"
+    }
   },
-  "definitions": { "stringArray": { "type": "array", "items": { "type": "string" } } },
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyStringArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/nonEmptyString"
+      },
+      "uniqueItems": true
+    },
+    "triggerDefinition": {
+      "type": "object",
+      "required": ["id", "evaluation", "condition", "action"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+        },
+        "evaluation": {
+          "type": "string",
+          "enum": ["machine", "judgment"]
+        },
+        "condition": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/nonEmptyString"
+            },
+            {
+              "type": "object",
+              "required": ["metric", "operator", "value"],
+              "properties": {
+                "metric": {
+                  "$ref": "#/definitions/nonEmptyString"
+                },
+                "operator": {
+                  "type": "string",
+                  "enum": ["<", "<=", "=", ">=", ">", "contains", "not_contains"]
+                },
+                "value": {}
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        "action": {
+          "type": "string",
+          "enum": ["route_for_review", "block_and_route", "require_approval"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evaluation": {
+                "const": "machine"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "condition": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evaluation": {
+                "const": "judgment"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "condition": {
+                "$ref": "#/definitions/nonEmptyString"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": true
+    }
+  },
   "additionalProperties": true
 }

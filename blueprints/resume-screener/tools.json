@@ -1,9 +1,24 @@
 {
+  "$schema": "../../schema/tool-manifest-v1.schema.json",
+  "manifest_version": "1.0.0",
   "tools": [
     {
       "name": "get_requisition",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Load one approved requisition with stable required and preferred qualification identifiers.",
+      "risk": "read_or_transform",
+      "authority": "read",
+      "data_classes": [
+        "job_requisition"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -19,8 +34,24 @@
     },
     {
       "name": "get_resume",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Retrieve one task-scoped resume from an approved source.",
+      "risk": "read_or_transform",
+      "authority": "read",
+      "data_classes": [
+        "resume",
+        "candidate_personal_data",
+        "employment_history",
+        "education_history"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -36,8 +67,24 @@
     },
     {
       "name": "parse_resume",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Structure job-relevant skills, roles, durations, credentials, and accomplishments without evaluating them.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "resume",
+        "candidate_personal_data",
+        "employment_history",
+        "education_history"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -53,8 +100,24 @@
     },
     {
       "name": "redact_protected_attributes",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Remove protected characteristics and proxy signals before requirement matching.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "resume",
+        "candidate_personal_data",
+        "employment_history",
+        "education_history"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -70,8 +133,23 @@
     },
     {
       "name": "match_requirements",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Compare redacted job-relevant evidence with each approved requirement and return met, not_met, or unclear.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "job_requisition",
+        "employment_history",
+        "education_history"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -94,8 +172,23 @@
     },
     {
       "name": "cite_evidence",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Attach the smallest useful resume excerpt and source location to a requirement finding.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "resume",
+        "employment_history",
+        "education_history"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -115,8 +208,22 @@
     },
     {
       "name": "check_fairness",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Verify that findings use only approved job criteria and exclude protected characteristics and proxy signals.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "job_requisition",
+        "assessment_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -135,8 +242,24 @@
     },
     {
       "name": "build_assessment",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Build a non-binding structured assessment with requirement findings and interview focus areas.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "job_requisition",
+        "employment_history",
+        "education_history",
+        "assessment_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -159,8 +282,21 @@
     },
     {
       "name": "flag_for_review",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Add a review reason to the output without sending or mutating an external record.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "assessment_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -176,8 +312,21 @@
     },
     {
       "name": "emit_json",
-      "risk": "read_or_transform",
+      "version": "0.1.0",
       "description": "Return the final structured assessment to the caller for recruiter review.",
+      "risk": "read_or_transform",
+      "authority": "transform",
+      "data_classes": [
+        "assessment_metadata"
+      ],
+      "external_side_effects": false,
+      "reversibility": "not_applicable",
+      "approval": "not_required",
+      "audit_required": true,
+      "owner": "rihalguard-blueprint-maintainers",
+      "allowed_agent_scopes": [
+        "resume-screener"
+      ],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -186,27 +335,6 @@
           }
         },
         "required": [
-          "assessment"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "update_ats",
-      "risk": "approval_required",
-      "description": "Example approval-gated applicant-tracking write tool. Stub only.",
-      "input_schema": {
-        "type": "object",
-        "properties": {
-          "candidate_record_id": {
-            "type": "string"
-          },
-          "assessment": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "candidate_record_id",
           "assessment"
         ],
         "additionalProperties": false

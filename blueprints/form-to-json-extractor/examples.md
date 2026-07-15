@@ -1,4 +1,4 @@
-# Examples — Form-to-JSON Extraction Agent
+# Examples - Form-to-JSON Extraction Agent
 
 ## Clean input
 

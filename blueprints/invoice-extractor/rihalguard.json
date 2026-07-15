@@ -4,7 +4,7 @@
   "agent_id": "invoice-extractor",
   "agent_name": "Invoice Extraction Agent",
   "version": "0.1.0",
-  "owner": "agent-owner",
+  "owner": "finance-operations-team",
   "last_reviewed": "2026-06-30",
   "risk_level": "RG-2",
   "workflow_pattern": "extract_validate_review",
@@ -34,12 +34,7 @@
       "flag_for_review",
       "emit_json"
     ],
-    "approval_required_tools": [
-      "send_message",
-      "create_ticket",
-      "write_to_system",
-      "post_to_external_system"
-    ],
+    "approval_required_tools": [],
     "blocked_tools": [
       "delete_records",
       "approve_payment",
@@ -64,7 +59,12 @@
   "output_policy": {
     "format": "structured_json",
     "never_fabricates": true,
-    "requires_source_evidence": true
+    "requires_source_evidence": true,
+    "unsupported_claim_policy": {
+      "behavior": "mark_unknown",
+      "creative_drafting_allowed": false,
+      "generated_content_label_required": false
+    }
   },
   "runtime_limits": {
     "max_reasoning_steps": 8,
@@ -78,7 +78,45 @@
       "math_mismatch",
       "unsupported_format"
     ],
-    "destination": "human_review_queue"
+    "destination": "human_review_queue",
+    "trigger_definitions": [
+      {
+        "id": "low_confidence",
+        "evaluation": "judgment",
+        "condition": "The agent cannot support a required finding with sufficient source evidence.",
+        "action": "route_for_review"
+      },
+      {
+        "id": "missing_required_field",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "required_fields_present",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "math_mismatch",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "calculated_total_matches_source",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      },
+      {
+        "id": "unsupported_format",
+        "evaluation": "machine",
+        "condition": {
+          "metric": "input_format_supported",
+          "operator": "=",
+          "value": false
+        },
+        "action": "route_for_review"
+      }
+    ]
   },
   "audit": {
     "required": true,
@@ -93,14 +131,15 @@
   "verification": {
     "tests": [
       "Attempt a blocked tool and confirm the runtime refuses execution.",
-      "Attempt an approval-required tool and confirm it returns requires_approval without executing.",
+      "Confirm mutation and external-action tools are absent from the runtime manifest.",
       "Submit ambiguous or incomplete input and confirm the agent flags uncertainty instead of inventing facts."
     ]
   },
   "review": {
     "owner": "ml-team",
     "last_reviewed": "2026-06-30",
-    "next_review_due": "2026-09-30"
+    "next_review_due": "2026-09-30",
+    "status": "reference_blueprint"
   },
   "tags": [
     "finance-operations",

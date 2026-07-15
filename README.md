@@ -7,7 +7,7 @@ It is not another prompt collection. It is a practical way to start every agent 
 The goal is simple: make agent development faster without letting every team invent its own rules.
 
 > [!NOTE]
-> RihalGuard is a design-time contract and starter blueprint system.
+> RihalGuard is a design-time review contract, scanner, and starter blueprint system.
 > Production agents still need real runtime enforcement, identity, access control, monitoring, and audit evidence.
 
 ## Why this exists
@@ -44,7 +44,8 @@ RihalGuard/
   SPEC.md                           # RihalGuard v1 standard
   registry.json                     # blueprint index
   schema/rihalguard-v1.schema.json  # contract schema
-  docs/                             # review, runtime, and blueprint docs
+  schema/tool-manifest-v1.schema.json # reviewed tool-manifest schema
+  docs/                             # operating model, review, runtime, and blueprint docs
   scripts/                          # validation and copy tooling
   scanner/                          # local browser scanner and assessment UI
   blueprints/                       # governed starter agents
@@ -71,13 +72,15 @@ Requirements:
 
 - Python 3.10+
 - Node.js for the scanner validation script
-- `uv` when you want to install optional blueprint LLM dependencies
+- `uv` for repository validation and optional blueprint LLM dependencies
 
 Validate the repo:
 
 ```bash
-python3 scripts/validate.py
+uv run python scripts/validate.py
+uv run python scripts/test-validation.py
 node scripts/validate-risk-tiers.mjs
+node scripts/test-scanner.mjs
 ```
 
 Open the local scanner:
@@ -88,6 +91,7 @@ open scanner/index.html
 
 Use it to paste a system prompt or complete the assessment form.
 The scanner returns deterministic RihalGuard gate results, a generated `rihalguard.json`, control findings, a safety radar, sample scenarios, and a remediation block.
+When a contract is pasted without its reviewed tool manifest, computed risk is marked partial because tool-name analysis is only a heuristic.
 
 Run one starter:
 
@@ -120,6 +124,9 @@ RihalGuard separates the agent into three layers:
 
 This split keeps governance review separate from implementation detail. A reviewer can inspect `rihalguard.json` without reading the whole agent.
 
+All contract fields express design intent.
+A compatible runtime may consume selected fields, but each deployment must document which fields it enforces and how that enforcement is verified.
+
 ## Risk model
 
 RihalGuard uses six levels:
@@ -131,7 +138,7 @@ RihalGuard uses six levels:
 | RG-2 | Structured output agent. Extracts, summarizes, drafts, or recommends. No side effects. |
 | RG-3 | Review-gated agent. Prepares an action, but a human must approve before mutation. |
 | RG-4 | Controlled execution agent. Executes limited reversible actions inside a defined scope. |
-| RG-5 | Autonomous workflow agent. Runs end-to-end workflows with strict audit and rollback controls. |
+| RG-5 | Autonomous workflow agent. Can execute consequential actions without complete approval, reversibility, or execution bounds. |
 
 The current starter blueprints are RG-2.
 That is deliberate.
@@ -162,6 +169,10 @@ This is not a compliance claim. A `rihalguard.json` file documents intended boun
 
 See [`docs/governance-crosswalk.md`](docs/governance-crosswalk.md) for the detailed mapping.
 
+For Rihal's adoption lifecycle and role boundaries, see [`docs/operating-model.md`](docs/operating-model.md).
+For custom and imported tools, see [`docs/custom-tool-policy.md`](docs/custom-tool-policy.md).
+For schema compatibility rules, see [`docs/versioning.md`](docs/versioning.md).
+
 ## What makes a blueprint acceptable
 
 A useful RihalGuard blueprint should have:
@@ -181,15 +192,17 @@ If a blueprint cannot explain its worst-case impact, it is not ready.
 Run:
 
 ```bash
-python3 scripts/validate.py
+uv run python scripts/validate.py
+uv run python scripts/test-validation.py
 node scripts/validate-risk-tiers.mjs
+node scripts/test-scanner.mjs
 for d in blueprints/*; do python3 "$d/evals/run.py"; done
 ```
 
 Expected result:
 
 ```text
-5/5 RihalGuard contracts valid
+5/5 RihalGuard contracts and tool manifests valid
 ```
 
 ## Suggested adoption path

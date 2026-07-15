@@ -1,4 +1,4 @@
-# Workflow — Meeting Summary Agent
+# Workflow - Meeting Summary Agent
 
 1. Receive input inside the approved scope.
 2. Use allowed tools to gather or transform information.

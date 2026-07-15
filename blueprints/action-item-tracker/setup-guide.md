@@ -1,4 +1,4 @@
-# Setup guide — Action Item Tracking Agent
+# Setup guide - Action Item Tracking Agent
 
 ```bash
 python3 run.py
