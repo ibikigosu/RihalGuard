@@ -229,6 +229,29 @@ The included `run.py` files show a minimal policy gate: load `rihalguard.json`, 
 
 For production, the same contract should inform real runtime controls: tool interception, identity, audit logging, approval workflows, access control, and incident handling.
 
+### Why use RihalGuard with LangChain, LangGraph, or another agent framework?
+
+They solve different parts of the agent lifecycle.
+
+**LangChain** provides abstractions and integrations for building agents with models, tools, middleware, and guardrails.
+
+**LangGraph** provides orchestration for durable, stateful workflows, including persistence, human intervention, streaming, and recovery.
+
+**RihalGuard** is the design and review contract that comes before and sits across those implementations.
+It records the agent's intended authority, maximum impact, tool boundaries, data rules, human-review triggers, audit expectations, and verification requirements in a framework-neutral `rihalguard.json` file.
+
+RihalGuard does not replace LangChain, LangGraph, or another agent framework.
+A team can define and review an agent with RihalGuard, implement it using its preferred framework, and connect the contract to production enforcement and monitoring.
+
+| Layer | Main question | Example output |
+| --- | --- | --- |
+| RihalGuard | What should this agent be allowed to do? | Contract, risk tier, tool manifest, review evidence, boundary tests |
+| Agent framework | How does the agent use models and tools? | Agent implementation, integrations, and guardrails |
+| Orchestration runtime | How does the workflow execute, persist, and resume? | Stateful workflow and runtime behavior |
+
+The benefit of RihalGuard is consistency across implementations.
+Governance decisions remain reviewable when teams use different models, frameworks, or deployment platforms.
+
 ### How is RihalGuard different from Microsoft's Agent Governance Toolkit?
 
 They sit at different layers.
